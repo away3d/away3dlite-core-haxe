@@ -6,8 +6,6 @@ package away3dlite.materials
 
 	/**
 	 * Basic color material.
-
-
 	 */
 	public class ColorMaterial extends Material
 	{

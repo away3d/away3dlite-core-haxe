@@ -60,9 +60,11 @@
                 }
             }
             
-			for (i = 0; i <= _segmentsW; ++i) {
-                _yUp? _vertices.push(0, -_height, 0) : _vertices.push(0, 0, _height);
-            	_uvtData.push(i/_segmentsW, 0, 1);
+            if (!_openEnded) {
+				for (i = 0; i <= _segmentsW; ++i) {
+	                _yUp? _vertices.push(0, -_height, 0) : _vertices.push(0, 0, _height);
+	            	_uvtData.push(i/_segmentsW, 0, 1);
+	            }
             }
 			
             for (j = 1; j <= _segmentsH; ++j) {
@@ -72,10 +74,16 @@
                     var c:int = (_segmentsW + 1)*(j - 1) + i - 1;
                     var d:int = (_segmentsW + 1)*(j - 1) + i;
                     
-                    if (j <= jMax)
-                    	_indices.push(a,b,c);
-                    if (j > jMin)
+                    if (j > jMax) {
 						_indices.push(a,c,d);
+						_faceLengths.push(3);
+                    } else if (j <= jMin) {
+                    	_indices.push(a,b,c);
+                    	_faceLengths.push(3);
+                	} else {
+						_indices.push(a,b,c,d);
+						_faceLengths.push(4);
+                    }
                 }
             }
             
@@ -198,7 +206,7 @@
 		 * @param	openEnded	Defines whether the end of the cylinder is left open (true) or closed (false).
 		 * @param	yUp			Defines whether the coordinates of the cylinder points use a yUp orientation (true) or a zUp orientation (false).
 		 */
-        public function Cylinder(material:Material = null, radius:Number = 100, height:Number = 200, segmentsW:int = 8, segmentsH:int = 1, openEnded:Boolean = true, yUp:Boolean = true)
+        public function Cylinder(material:Material = null, radius:Number = 100, height:Number = 200, segmentsW:int = 8, segmentsH:int = 1, openEnded:Boolean = false, yUp:Boolean = true)
         {
         	super(material);
         	

@@ -1,6 +1,5 @@
-//OK
-
 package away3dlite.core.render;
+
 import away3dlite.containers.ObjectContainer3D;
 import away3dlite.core.base.Face;
 import away3dlite.core.base.Mesh;
@@ -19,8 +18,6 @@ using away3dlite.namespace.Arcane;
  */
 class FastRenderer extends Renderer
 {
-	private var _indices:Vector<Int>;
-	private var _uvtData:Vector<Float>;
 	private var _i:Int;
 	private var _x:Float;
 	private var _y:Float;
@@ -30,7 +27,7 @@ class FastRenderer extends Renderer
 	{
 		Lib.trace(Std.is(object, Object3D));
 		_mouseEnabledArray.push(_mouseEnabled);
-		_mouseEnabled = object.arcane()._mouseEnabled = (_mouseEnabled && object.mouseEnabled);
+		_mouseEnabled = object.arcaneNS()._mouseEnabled = (_mouseEnabled && object.mouseEnabled);
 		
 		if (Std.is(object, ObjectContainer3D)) {
 			children = Lib.as(object, ObjectContainer3D).children;
@@ -45,45 +42,65 @@ class FastRenderer extends Renderer
 				
 				collectFaces(child);
 			}
-			
-		} else if (Std.is(object, Mesh)) {
-			
-			var mesh:Mesh = Lib.as(object, Mesh);
-			var _mesh_material:Material = mesh.material;
-			var _mesh_material_graphicsData:Vector<IGraphicsData> = _mesh_material.graphicsData;
-			
-			_mesh_material_graphicsData[_mesh_material.trianglesIndex] = mesh.arcane()._triangles;
-			
-			_faces = mesh.arcane()._faces;
-			_sort = mesh.arcane()._sort;
-			_indices = mesh.arcane()._indices;
-			_uvtData = mesh.arcane()._uvtData;
-			
-			if(_faces.length == 0)
-				return;
-			
-			if (_view.mouseEnabled && _mouseEnabled)
-				collectScreenVertices(mesh);
-			
-			if (mesh.sortFaces)
-				sortFaces();
-			
-			if(object.layer != null)
-			{
-				object.layer.graphics.drawGraphicsData(_mesh_material_graphicsData);
-			}else{
-				_view_graphics_drawGraphicsData(_mesh_material_graphicsData);
-			}
-			
-			var _faces_length:Int = _faces.length;
-			_view.arcane()._totalFaces += _faces_length;
-			_view.arcane()._renderedFaces += _faces_length;
 		}
+		
+		var mesh:Mesh = Lib.as(object, Mesh);
+		
+		_faces = mesh.arcaneNS()._faces;
+		
+		if(_faces.length == 0)
+			return;
+		
+		var _mesh_material:Material = mesh.material;
+		var _mesh_material_graphicsData:Vector<IGraphicsData> = _mesh_material.graphicsData;
+		
+		_mesh_material_graphicsData[_mesh_material.trianglesIndex] = _triangles;
+		
+		_ind.fixed = false;
+		_sort = mesh.arcaneNS()._sort;
+		_triangles.culling = mesh.arcaneNS()._culling;
+		_uvt = _triangles.uvtData = mesh.arcaneNS()._uvtData;
+		_vert = _triangles.vertices = mesh.arcaneNS()._screenVertices;
+		_ind.length = mesh.arcaneNS()._indicesTotal;
+		_ind.fixed = true;
+		
+		if (_view.mouseEnabled && _mouseEnabled)
+			collectScreenVertices(mesh);
+		
+		if (mesh.sortFaces) {
+			sortFaces();
+		} else {
+			j = _faces.length;
+			_i = -1;
+			while (j-- != 0) {
+				_face = _faces[j];
+				_ind[Std.int(++_i)] = _face.i0;
+				_ind[Std.int(++_i)] = _face.i1;
+				_ind[Std.int(++_i)] = _face.i2;
+				
+				if (_face.i3 != 0) {
+					_ind[Std.int(++_i)] = _face.i0;
+					_ind[Std.int(++_i)] = _face.i2;
+					_ind[Std.int(++_i)] = _face.i3;
+				}
+			}
+		}
+		
+		if(object.layer != null)
+		{
+			object.layer.graphics.drawGraphicsData(_mesh_material_graphicsData);
+		}else{
+			_view_graphics_drawGraphicsData(_mesh_material_graphicsData);
+		}
+		
+		var _faces_length:Int = _faces.length;
+		_view.arcaneNS()._totalFaces += _faces_length;
+		_view.arcaneNS()._renderedFaces += _faces_length;
 		
 		_mouseEnabled = _mouseEnabledArray.pop();
 		
-		++_view.arcane()._totalObjects;
-		++_view.arcane()._renderedObjects;
+		++_view.arcaneNS()._totalObjects;
+		++_view.arcaneNS()._renderedObjects;
 	}
 	
 	private function collectPointFaces(object:Object3D):Void
@@ -98,8 +115,8 @@ class FastRenderer extends Renderer
 		} else if (Std.is ( object,  Mesh ) ) {
 			var mesh:Mesh = Lib.as(object, Mesh);
 			
-			_faces = mesh.arcane()._faces;
-			_sort = mesh.arcane()._sort;
+			_faces = mesh.arcaneNS()._faces;
+			_sort = mesh.arcaneNS()._sort;
 			
 			collectPointFace(_x, _y);
 		}
@@ -115,10 +132,16 @@ class FastRenderer extends Renderer
 		while (i++ < 255) {
 			j = q1[i];
 			while (j != 0) {
-				_face = _faces[j-1];
-				_indices[Std.int(++_i)] = _face.i0;
-				_indices[Std.int(++_i)] = _face.i1;
-				_indices[Std.int(++_i)] = _face.i2;
+				_face = _faces[j - 1];
+				_ind[Std.int(++_i)] = _face.i0;
+				_ind[Std.int(++_i)] = _face.i1;
+				_ind[Std.int(++_i)] = _face.i2;
+				
+				if (_face.i3 != 0) {
+					_ind[Std.int(++_i)] = _face.i0;
+					_ind[Std.int(++_i)] = _face.i2;
+					_ind[Std.int(++_i)] = _face.i3;
+				}
 				
 				j = np1[j];
 			}

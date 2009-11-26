@@ -12,6 +12,7 @@ import flash.utils.ByteArray;
 //use namespace arcane;
 using away3dlite.namespace.Arcane;
 using away3dlite.haxeutils.HaxeUtils;
+using away3dlite.haxeutils.FastStd;
 
 /**
  * Metasequoia
@@ -54,7 +55,7 @@ class MQO extends AbstractParser
 	private function getMaterialChunkLine(lines:Array<String>, ?startLine:Int = 0):Int
 	{
 		var len = lines.length;
-		var i = -1;
+		var i:UInt = startLine;
 		
 		while(++i < len)
 			if (lines[i].indexOf("Material") == 0)
@@ -81,7 +82,8 @@ class MQO extends AbstractParser
 		
 		var endLine:Int = l + Std.int(num);
 		
-		while (l < endLine) {
+		while (l < endLine) 
+		{
 			line = lines[l];
 
 			var nameBeginIndex:Int = line.indexOf("\"");
@@ -92,13 +94,15 @@ class MQO extends AbstractParser
 			
 			var tex:String = getParam(line, "tex");
 
-			if (tex != null) {
+			if (tex != null)
+			{
 				_materialData.materialType = MaterialData.TEXTURE_MATERIAL;
 				
 				tex = tex.substr(1, tex.length - 2);
 				
 				
-				if (~/\.tga$/gim.match(tex) || ~/\.bmp$/gim.match(tex)) {
+				if (~/\.tga$/gim.match(tex) || ~/\.bmp$/gim.match(tex))
+				{
 					//TODO : someone really need TGA, BMP on web?
 					//_material = loadTGAMaterial(path + tex);
 
@@ -111,10 +115,13 @@ class MQO extends AbstractParser
 				
 				_materialData.textureFileName = tex;
 				
-			} else {
+			}
+			else
+			{
 				var colorstr:String = getParam(line, "col");
 				
-				if (colorstr != null) {
+				if (colorstr != null)
+				{
 					
 					var color:Array<String> = colorstr.match(~/\d+\.\d+/gim);
 					var r:Int = Std.int((color[0]).parseFloat() * 255);
@@ -129,9 +136,9 @@ class MQO extends AbstractParser
 					
 					_materialData.diffuseColor = (r << 16) | (g << 8) | b;
 					_materialData.alpha = a;
-				} else {
-					_materialData.materialType = MaterialData.WIREFRAME_MATERIAL;
 				}
+				else
+					_materialData.materialType = MaterialData.WIREFRAME_MATERIAL;
 			}
 			
 			++l;
@@ -142,7 +149,7 @@ class MQO extends AbstractParser
 
 	private function getObjectChunkLine(lines:Array<String>, ?startLine:Int = 0):Int
 	{
-		var i:UInt = 0;
+		var i:UInt = startLine;
 		var len = lines.length;
 		while (i < len)
 		{
@@ -179,7 +186,8 @@ class MQO extends AbstractParser
 
 		var properties:Hash<String> = new Hash<String>();
 		
-		while (l < vline) {
+		while (l < vline)
+		{
 			line = lines[l];
 			//var props:Array = RegExp(/^\s*([\w]+)\s+(.*)$/).exec(line);
 			var props = line.match(~/^\s*([\w]+)\s+(.*)$/);
@@ -194,7 +202,8 @@ class MQO extends AbstractParser
 		var vertexEndLine:Int = l + numVertices;
 		var firstVertexIndex:Int = vertices.length;
 
-		while (l < vertexEndLine) {
+		while (l < vertexEndLine)
+		{
 			line = lines[l];
 			var coords:Array<String> = line.match(~/(-?\d+\.\d+)/g);
 			var x:Float = (coords[0]).parseFloat() * scaling;
@@ -215,20 +224,23 @@ class MQO extends AbstractParser
 		var faceEndLine:Int = l + numFaces;
 		
 		_meshData = new MeshData();
-		
 		_meshData.name = name;
+		
 		_geometryData = _meshData.geometry = _geometryLibrary.addGeometry(_meshData.name);
 		
-		while (l < faceEndLine) {
-			if (properties.get("visible") == "15") {
+		while (l < faceEndLine)
+		{
+			if (properties.get("visible") == "15")
+			{
 				_meshData.material = parseFace(lines[l], vertices, firstVertexIndex, properties);
 			}
 			++l;
 		}
 		
-			//ignore bone data
-			if (_meshData.material != null)
-				meshDataList.push(_meshData);
+		//ignore bone data
+		if (_meshData.material != null)
+			meshDataList.push(_meshData);
+			
 		//TODO : do we need this?
 		/*
 		   // Resolve parent-child relationship.
@@ -273,7 +285,8 @@ class MQO extends AbstractParser
 		var uvC:Vector3D = null;
 		var uvD:Vector3D = null;
 		var mirrorAxis:Int;
-		if (v.length == 3) {
+		if (v.length == 3)
+		{
 			c = vertices[(v[0]).parseInt() + vertexOffset];
 			b = vertices[(v[1]).parseInt() + vertexOffset];
 			a = vertices[(v[2]).parseInt() + vertexOffset];
@@ -281,17 +294,21 @@ class MQO extends AbstractParser
 			if (mstr != null)
 				_material = _materialNames[(mstr).parseInt()];
 
-			if (uv.length != 0) {
+			if (uv.length != 0)
+			{
 				uvC = new Vector3D((uv[0]).parseFloat(),  (uv[1]).parseFloat());
 				uvB = new Vector3D((uv[2]).parseFloat(),  (uv[3]).parseFloat());
 				uvA = new Vector3D((uv[4]).parseFloat(),  (uv[5]).parseFloat());
 				addFace(a, b, c, uvA, uvB, uvC);
-			} else {
+			}
+			else
+			{
 				addFace(a, b, c, new Vector3D(0, 0), new Vector3D(1, 0), new Vector3D(0, 1));
 			}
 
 
-			if (properties.get("mirror") == "1") {
+			if (properties.get("mirror") == "1")
+			{
 				mirrorAxis = (properties.get("mirror_axis").parseInt());
 				a = mirrorVertex(a, mirrorAxis);
 				b = mirrorVertex(b, mirrorAxis);
@@ -301,7 +318,8 @@ class MQO extends AbstractParser
 				vertices.push(c);
 				addFace(c, b, a, uvC, uvB, uvA);
 			}
-		} else if (v.length == 4) {
+		} else if (v.length == 4)
+		{
 			d = vertices[(v[0]).parseInt() + vertexOffset];
 			c = vertices[(v[1]).parseInt() + vertexOffset];
 			b = vertices[(v[2]).parseInt() + vertexOffset];
@@ -310,12 +328,15 @@ class MQO extends AbstractParser
 			if (mstr != null)
 				_material = _materialNames[(mstr).parseInt()];
 
-			if (uv.length != 0) {
+			if (uv.length != 0)
+			{
 				uvD = new Vector3D((uv[0]).parseFloat(),  (uv[1]).parseFloat());
 				uvC = new Vector3D((uv[2]).parseFloat(),  (uv[3]).parseFloat());
 				uvB = new Vector3D((uv[4]).parseFloat(),  (uv[5]).parseFloat());
 				uvA = new Vector3D((uv[6]).parseFloat(),  (uv[7]).parseFloat());
-			} else {
+			}
+			else
+			{
 				uvD = new Vector3D(1, 1);
 				uvC = new Vector3D(0, 1);
 				uvB = new Vector3D(1, 0);
@@ -324,8 +345,9 @@ class MQO extends AbstractParser
 			
 			addFace(a, b, c, uvA, uvB, uvC);
 			addFace(c, d, a, uvC, uvD, uvA);
-
-			if (properties.get("mirror") == "1") {
+			
+			if (properties.get("mirror") == "1")
+			{
 				mirrorAxis = (properties.get("mirror_axis").parseInt());
 				a = mirrorVertex(a, mirrorAxis);
 				b = mirrorVertex(b, mirrorAxis);
@@ -350,7 +372,7 @@ class MQO extends AbstractParser
 
 	private static function getChunkLine(lines:Array<String>, chunkName:String, ?startLine:Int = 0):Int
 	{
-		var i:UInt = 0;
+		var i:UInt = startLine;
 		var len = lines.length;
 		while (i < len)
 		{
@@ -395,6 +417,7 @@ class MQO extends AbstractParser
 		n += 3;
 		
 		_geometryData.indices.xyzpush(n, n - 1, n - 2);
+		_geometryData.faceLengths.push(3);
 	}
 	
 	private function buildMeshes():Void
@@ -405,6 +428,7 @@ class MQO extends AbstractParser
 			//create Mesh object
 			var mesh:Mesh = new Mesh();
 			//mesh.name = _meshData.name;
+			
 			_meshData.material.meshes.push(mesh);
 			
 			_geometryData = _meshData.geometry;
@@ -447,29 +471,26 @@ class MQO extends AbstractParser
 				mesh.geometry = geometry;
 			}
 				*/
-			mesh.arcane()._vertices = _geometryData.vertices;
-			var uvt:Float;
-			for (uvt in _geometryData.uvtData)
-				mesh.arcane()._uvtData.push(uvt);
-			var index:Int;
-			for (index in _geometryData.indices)
-				mesh.arcane()._indices.push(index);
+			mesh.arcaneNS()._vertices = _geometryData.vertices;
+			mesh.arcaneNS()._uvtData = _geometryData.uvtData;
+			mesh.arcaneNS()._indices = _geometryData.indices;
+			mesh.arcaneNS()._faceLengths = _geometryData.faceLengths;
 			
-			mesh.arcane().buildFaces();
+			mesh.arcaneNS().buildFaces();
 			
 			//center vertex points in mesh for better bounding radius calulations
 			
 			if (centerMeshes) 
 			{
-				var i:Int = Std.int( mesh.arcane()._vertices.length/3);
+				var i:Int = Std.int( mesh.arcaneNS()._vertices.length/3);
 				_moveVector.x = (_geometryData.maxX + _geometryData.minX)/2;
 				_moveVector.y = (_geometryData.maxY + _geometryData.minY)/2;
 				_moveVector.z = (_geometryData.maxZ + _geometryData.minZ)/2;
 				while (i-- > 0)
 				{
-					mesh.arcane()._vertices[i*3] -= _moveVector.x;
-					mesh.arcane()._vertices[i*3+1] -= _moveVector.y;
-					mesh.arcane()._vertices[i * 3 + 2] -= _moveVector.z;
+					mesh.arcaneNS()._vertices[i*3] -= _moveVector.x;
+					mesh.arcaneNS()._vertices[i*3+1] -= _moveVector.y;
+					mesh.arcaneNS()._vertices[i * 3 + 2] -= _moveVector.z;
 				}
 				_moveVector = mesh.transform.matrix3D.transformVector(_moveVector);
 				mesh.transform.matrix3D.position = _moveVector.clone();

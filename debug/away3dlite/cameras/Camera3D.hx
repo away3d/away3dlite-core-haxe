@@ -1,8 +1,8 @@
-//OK
-
 package away3dlite.cameras;
+
 import away3dlite.containers.View3D;
 import away3dlite.core.base.Object3D;
+import flash.geom.Matrix;
 import flash.geom.Matrix3D;
 import flash.geom.PerspectiveProjection;
 
@@ -24,19 +24,26 @@ class Camera3D extends Object3D
 		
 		if(_fieldOfViewDirty) {
 			_fieldOfViewDirty = false;
-			_projection.fieldOfView = 360*Math.atan2(stage.stageWidth, 2*_zoom*_focus)/Math.PI;
+			//_projection.fieldOfView = 360*Math.atan2(stage.stageWidth, 2*_zoom*_focus)/Math.PI;
+			_projection.focalLength = _zoom * _focus;
 		}
 		
-		_projectionMatrix3D = transform.matrix3D.clone();
-		_projectionMatrix3D.prependTranslation(0, 0, -_focus);
-		_projectionMatrix3D.invert();
-		_projectionMatrix3D.append(_projection.toMatrix3D());
+		_projectionMatrix3D = _projection.toMatrix3D();
+		
+		_invSceneMatrix3D.rawData = transform.matrix3D.rawData;
+		_invSceneMatrix3D.prependTranslation(0, 0, -_focus);
+		_invSceneMatrix3D.invert();
+		
+		_screenMatrix3D.rawData = _invSceneMatrix3D.rawData;
+		_screenMatrix3D.append(_projectionMatrix3D);
 	}
 	
 	private var _focus:Float;
 	private var _zoom:Float;
 	private var _projection:PerspectiveProjection;
 	private var _projectionMatrix3D:Matrix3D;
+	private var _screenMatrix3D:Matrix3D;
+	private var _invSceneMatrix3D:Matrix3D;
 	private var _fieldOfViewDirty:Bool;
 	
 	private static inline var toRADIANS:Float = Math.PI/180;
@@ -76,14 +83,33 @@ class Camera3D extends Object3D
 	}
 	
 	/**
+	 * Returns the 3d matrix representing the camera inverse scene transform for the view.
+	 */
+	public var invSceneMatrix3D(get_invSceneMatrix3D, null):Matrix3D;
+	private function get_invSceneMatrix3D():Matrix3D
+	{
+		return _invSceneMatrix3D;
+	}
+		
+	/**
 	 * Returns the 3d matrix representing the camera projection for the view.
 	 * 
-	 * @see away3dlite.containers.View3D#render()
-	 */
+	 **/
 	public var projectionMatrix3D(get_projectionMatrix3D, null):Matrix3D;
 	private function get_projectionMatrix3D():Matrix3D
 	{
 		return _projectionMatrix3D;
+	}
+	
+	/**
+	 * Returns the 3d matrix used in resolving screen space for the render loop.
+	 * 
+	 * @see away3dlite.containers.View3D#render()
+	 */
+	public var screenMatrix3D(get_screenMatrix3D, null):Matrix3D;
+	private function get_screenMatrix3D():Matrix3D
+	{
+		return _screenMatrix3D;
 	}
 	
 	/**
@@ -96,11 +122,15 @@ class Camera3D extends Object3D
 	{
 		super();
 		
-		_projectionMatrix3D = new Matrix3D();
+		_screenMatrix3D = new Matrix3D();
+		_invSceneMatrix3D = new Matrix3D();
 		_fieldOfViewDirty = true;
 		
 		this.zoom = zoom;
 		this.focus = focus;
+		
+		//set default z position
+		z = -1000;
 	}
 }
 

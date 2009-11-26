@@ -35,6 +35,16 @@ package away3dlite.events
     	public static const MATERIAL_CHANGED:String = "materialChanged";
     	
     	/**
+    	 * Defines the value of the type property of a materialActivated event object.
+    	 */
+    	public static const MATERIAL_ACTIVATED:String = "materialActivated";
+    	
+    	/**
+    	 * Defines the value of the type property of a materialDeactivated event object.
+    	 */
+    	public static const MATERIAL_DEACTIVATED:String = "materialDeactivated";
+    	
+    	/**
     	 * A reference to the material object that is relevant to the event.
     	 */
         public var material:Material;

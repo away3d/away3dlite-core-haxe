@@ -1,6 +1,5 @@
-//OK
-//no
 package away3dlite.animators.bones;
+
 import away3dlite.core.base.Object3D;
 import away3dlite.containers.ObjectContainer3D;
 import flash.Lib;
@@ -30,7 +29,8 @@ class Channel
 	public var interpolations:Array<Float>;
 	
 	#if !as3_original
-	private var setFields:Array<Dynamic>;
+	private var setFields:Hash<Dynamic>;
+	private var lastLen:Int;
 	#end
 	
 	public function new(name:String)
@@ -45,6 +45,10 @@ class Channel
 		times = [];
 		
 		interpolations = [];
+		
+		#if !as3_original
+		setFields = new Hash<Dynamic>();
+		#end
 	}
 	
 	#if !as3_original
@@ -52,13 +56,12 @@ class Channel
 	{
 		i = type.length;
 		
-		setFields = [];
-		
-		while (i-- != 0)
+		while (--i >= lastLen)
 		{
 			if (Reflect.hasField(target, "set_" + type[i]))
-				setFields[i] = Reflect.field(target, "set_" + type[i]);
+				setFields.set(type[i] +"$" + i, Reflect.field(target, "set_" + type[i]));
 		}
+		lastLen = type.length;
 	}
 	#end
 	
@@ -74,18 +77,18 @@ class Channel
 			return;
 		
 		#if !as3_original
-		if (setFields == null)
+		if (lastLen != type.length)
 			updateFields();
 		#end
 		i = type.length;
-			
+		
 		if (time < times[0]) {
 			while (i-- != 0)
 			{
 				//HAXE_MODIFYIED
 				//MUST_OPTIMIZE
 				#if !as3_original
-				var setField = setFields[i];
+				var setField = setFields.get(type[i]+"$" + i);
 				if (setField != null)
 					setField(param[0][i]);
 				else
@@ -94,13 +97,13 @@ class Channel
 					Reflect.setField(target, type[i], param[0][i]);
 				#end
 			}
-		} else if (time > times[Std.int(times.length-1)]) {
+		} else if (time > times[Std.int(times.length - 1)]) {
 			while (i-- != 0)
 			{
 				//HAXE_MODIFYIED
 				//MUST_OPTIMIZE
 				#if !as3_original
-				var setField = setFields[i];
+				var setField = setFields.get(type[i] +"$" + i);
 				if (setField != null)
 					setField(param[Std.int(times.length - 1)][i]);
 				else
@@ -127,7 +130,7 @@ class Channel
 			
 			while (i-- != 0) {
 				if (type[i] == "transform") {
-					target.transform = param[_index][i];
+					target.transform.matrix3D = param[_index][i];
 				} else if (type[i] == "visibility") {
 					target.visible = param[_index][i] > 0;
 				} else {
@@ -135,7 +138,7 @@ class Channel
 					{
 						var setValue = ((time - times[_index]) * param[Std.int(_index + 1)][i] + (times[Std.int(_index + 1)] - time) * param[_index][i]) / (times[Std.int(_index + 1)] - times[_index]);
 						#if !as3_original
-						var setField = setFields[i];
+						var setField = setFields.get(type[i] +"$" + i);
 						if (setField != null)
 							setField(setValue);
 						else
@@ -146,7 +149,7 @@ class Channel
 					} else {
 						var setValue = param[_index][i];
 						#if !as3_original
-						var setField = setFields[i];
+						var setField = setFields.get(type[i] +"$" + i);
 						if (setField != null)
 							setField(setValue);
 						else

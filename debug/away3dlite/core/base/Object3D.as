@@ -1,6 +1,7 @@
 package away3dlite.core.base
 {
 	import away3dlite.arcane;
+	import away3dlite.cameras.*;
 	import away3dlite.containers.*;
 	import away3dlite.loaders.utils.*;
 	
@@ -68,9 +69,9 @@ package away3dlite.core.base
 		/** @private */
 		arcane var _scene:Scene3D;
 		/** @private */
-		arcane var _viewMatrix3D:Matrix3D;
+		arcane var _viewMatrix3D:Matrix3D = new Matrix3D();
 		/** @private */
-		arcane var _sceneMatrix3D:Matrix3D;
+		arcane var _sceneMatrix3D:Matrix3D = new Matrix3D();
 		/** @private */
 		arcane var _mouseEnabled:Boolean;
 		/** @private */
@@ -78,17 +79,23 @@ package away3dlite.core.base
 		{
 		}
         /** @private */
-        arcane function project(projectionMatrix3D:Matrix3D, parentSceneMatrix3D:Matrix3D = null):void
+        arcane function project(camera:Camera3D, parentSceneMatrix3D:Matrix3D = null):void
 		{
-			_sceneMatrix3D = transform.matrix3D.clone();
+			_sceneMatrix3D.rawData = transform.matrix3D.rawData;
 			
 			if (parentSceneMatrix3D)
 				_sceneMatrix3D.append(parentSceneMatrix3D);
 				
-			_viewMatrix3D = _sceneMatrix3D.clone();
-			_viewMatrix3D.append(projectionMatrix3D);
+			_viewMatrix3D.rawData = _sceneMatrix3D.rawData;
+			_viewMatrix3D.append(camera.screenMatrix3D);
 			
 			_screenZ = _viewMatrix3D.position.z;
+		}
+		
+		protected function copyMatrix3D(m1:Matrix3D, m2:Matrix3D):void
+		{
+			var rawData:Vector.<Number> = m1.rawData.concat();
+			m2.rawData = rawData;
 		}
 		
 		/**

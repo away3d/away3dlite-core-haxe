@@ -31,11 +31,13 @@
     		_vertices.fixed = false;
 			_uvtData.fixed = false;
 			_indices.fixed = false;
+			_faceLengths.fixed = false;
 			
 			_vertices.length = 0;
 			_uvtData.length = 0;
 			_indices.length = 0;
-    	}
+			_faceLengths.length = 0;
+		}
         
 		/**
 		 * @inheritDoc
@@ -45,7 +47,7 @@
     		if (_primitiveDirty)
     			updatePrimitive();
     		
-            return super.vertices;
+            return _vertices;
         }
         
 		/**

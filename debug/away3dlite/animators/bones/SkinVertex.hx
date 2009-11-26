@@ -1,6 +1,5 @@
-﻿//OK
+﻿package away3dlite.animators.bones;
 
-package away3dlite.animators.bones;
 import flash.geom.Vector3D;
 import flash.Vector;
 
@@ -44,9 +43,9 @@ class SkinVertex
 			_output = _output.add(_position);
 		}
 		
-		_vertices[_startIndex] = _output.x;
-		_vertices[_startIndex + 1] = _output.y;
-		_vertices[_startIndex + 2] = _output.z;
+		_vertices[Std.int(_startIndex)] = _output.x;
+		_vertices[Std.int(_startIndex + 1)] = _output.y;
+		_vertices[Std.int(_startIndex + 2)] = _output.z;
 	}
 	
 	public function clone():SkinVertex

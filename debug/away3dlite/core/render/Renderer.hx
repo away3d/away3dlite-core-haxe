@@ -1,11 +1,11 @@
-//OK
-
 package away3dlite.core.render;
+
 import away3dlite.containers.Scene3D;
 import away3dlite.containers.View3D;
 import away3dlite.core.base.Face;
 import away3dlite.core.base.Mesh;
 import away3dlite.core.clip.Clipping;
+import flash.display.GraphicsTrianglePath;
 import flash.display.IGraphicsData;
 import flash.Lib;
 import flash.Vector;
@@ -67,7 +67,13 @@ class Renderer
 	/** @private */
 	private var _mouseEnabledArray:Vector<Bool>;
 	/** @private */
-	
+	private var _ind:Vector<Int>;
+	/** @private */
+	private var _vert:Vector<Float>;
+	/** @private */
+	private var _uvt:Vector<Float>;
+	/** @private */
+	private var _triangles:GraphicsTrianglePath;
 	/** @private */
 	private var _view_graphics_drawGraphicsData:flash.Vector<IGraphicsData>->Void;
 	
@@ -106,35 +112,56 @@ class Renderer
 	/** @private */
 	private function collectPointFace(x:Float, y:Float):Void
 	{
-		var mouseCount:Int;
-		var mouseCountX:Int;
-		var mouseCountY:Int;
+		var pointCount:Int;
+		var pointTotal:Int;
+		var pointCountX:Int;
+		var pointCountY:Int;
 		var i:Int = _faces.length;
 		while (i-- != 0) {
 			_face = _faces[i];
-			if (_screenZ < _sort[i] && _face.mesh.arcane()._mouseEnabled) {
-				_screenPointVertices = _screenPointVertexArrays[_face.mesh.arcane()._vertexId];
-				mouseCount = _screenPointVertices[_face.i0] + _screenPointVertices[_face.i1] + _screenPointVertices[_face.i2];
-				mouseCountX = (mouseCount >> 2 & 3);
-				mouseCountY = (mouseCount & 3);
-				if (mouseCountX != 0 && mouseCountX < 3 && mouseCountY != 0 && mouseCountY < 3) {
+			if (_screenZ < _sort[i] && _face.mesh.arcaneNS()._mouseEnabled) {
+				_screenPointVertices = _screenPointVertexArrays[_face.mesh.arcaneNS()._vertexId];
+				
+				if (_face.i3 != 0) {
+					pointTotal = 4;
+					pointCount = _screenPointVertices[_face.i0] + _screenPointVertices[_face.i1] + _screenPointVertices[_face.i2] + _screenPointVertices[_face.i3];
+				} else {
+					pointTotal = 3;
+					pointCount = _screenPointVertices[_face.i0] + _screenPointVertices[_face.i1] + _screenPointVertices[_face.i2];
+				}
+				
+				pointCountX = (pointCount >> 4);
+				pointCountY = (pointCount & 15);
+				if (pointCountX != 0 && pointCountX < pointTotal && pointCountY != 0 && pointCountY < pointTotal) {
 					
 					//flagged for edge detection
-					var vertices:Vector<Float> = _face.mesh.arcane()._screenVertices;
+					var vertices:Vector<Float> = _face.mesh.arcaneNS()._screenVertices;
 					var v0x:Float = vertices[_face.x0];
 					var v0y:Float = vertices[_face.y0];
 					var v1x:Float = vertices[_face.x1];
 					var v1y:Float = vertices[_face.y1];
 					var v2x:Float = vertices[_face.x2];
 					var v2y:Float = vertices[_face.y2];
+					
 					if ((v0x*(y - v1y) + v1x*(v0y - y) + x*(v1y - v0y)) < -0.001)
 						continue;
-		
-					if ((v0x*(v2y - y) + x*(v0y - v2y) + v2x*(y - v0y)) < -0.001)
-						continue;
-		
+						
 					if ((x*(v2y - v1y) + v1x*(y - v2y) + v2x*(v1y - y)) < -0.001)
 						continue;
+					
+					if (_face.i3 != 0) {
+						var v3x:Float = vertices[_face.x3];
+						var v3y:Float = vertices[_face.y3];
+						
+						if ((v3x*(v2y - y) + x*(v3y - v2y) + v2x*(y - v3y)) < -0.001)
+							continue;
+						
+						if ((v0x*(v3y - y) + x*(v0y - v3y) + v3x*(y - v0y)) < -0.001)
+							continue;
+						
+					} else if ((v0x*(v2y - y) + x*(v0y - v2y) + v2x*(y - v0y)) < -0.001) {
+						continue;
+					}
 					
 					_screenZ = _sort[i];
 					_pointFace = _face;
@@ -146,8 +173,8 @@ class Renderer
 	/** @private */
 	private function collectScreenVertices(mesh:Mesh):Void
 	{
-		mesh.arcane()._vertexId = _screenVertexArrays.length;
-		_screenVertexArrays.push(mesh.arcane()._screenVertices);
+		mesh.arcaneNS()._vertexId = _screenVertexArrays.length;
+		_screenVertexArrays.push(mesh.arcaneNS()._screenVertices);
 	}
 	
 	/** @private */
@@ -161,23 +188,16 @@ class Renderer
 		
 		while (i-- != 0) {
 			_screenVertices = _screenVertexArrays[i];
-			if (_screenPointVertexArrays[i] == null)
-				_screenPointVertexArrays[i] = new flash.Vector<Int>();
-			_screenPointVertices = _screenPointVertexArrays[i];
-			
-			_screenPointVertices.fixed = false;
-			_screenPointVertices.length = 0;
-			_index = _screenPointVertices.length = Std.int( _screenVertices.length/2 );
-			_screenPointVertices.fixed = true;
+			_screenPointVertices = _screenPointVertexArrays[i] = new flash.Vector<Int>(_index = Std.int(_screenVertices.length / 2), true);
 			
 			while (_index-- != 0) {
 				_indexY = (_indexX = _index*2) + 1;
 				
 				if (_screenVertices[_indexX] < x)
-					_screenPointVertices[_index] += 4;
+					_screenPointVertices[_index] += 0x10;
 				
 				if (_screenVertices[_indexY] < y)
-					_screenPointVertices[_index] += 1;
+					_screenPointVertices[_index] += 0x1;
 			}
 		}
 	}
@@ -194,8 +214,11 @@ class Renderer
 		_sort  = new Vector<Int>();
 		_faceStore  = new Vector<Int>();
 		_mouseEnabledArray  = new Vector<Bool>();
+		_triangles = new GraphicsTrianglePath();
 		
-		
+		_ind = _triangles.indices = new Vector<Int>();
+		_vert = _triangles.vertices = new Vector<Float>();
+		_uvt = _triangles.uvtData = new Vector<Float>();
 	}
 	
 	/**
@@ -221,7 +244,7 @@ class Renderer
 	{
 		_scene = _view.scene;
 		
-		_clipping = _view.arcane().screenClipping;
+		_clipping = _view.arcaneNS().screenClipping;
 		
 		_mouseEnabled = _scene.mouseEnabled;
 		_mouseEnabledArray.length = 0;

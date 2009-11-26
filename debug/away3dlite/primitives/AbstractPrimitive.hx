@@ -32,10 +32,12 @@ class AbstractPrimitive extends Mesh
 		_vertices.fixed = false;
 		_uvtData.fixed = false;
 		_indices.fixed = false;
+		_faceLengths.fixed = false;
 		
 		_vertices.length = 0;
 		_uvtData.length = 0;
 		_indices.length = 0;
+		_faceLengths.length = 0;
 	}
 	
 	/**
@@ -46,7 +48,7 @@ class AbstractPrimitive extends Mesh
 		if (_primitiveDirty)
 			updatePrimitive();
 		
-		return super.get_vertices();
+		return _vertices;
 	}
 	
 	/**

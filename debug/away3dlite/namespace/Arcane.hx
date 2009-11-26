@@ -1,14 +1,29 @@
 ﻿/**
- * haXe package to emulate arcane namespace access. Should be used with using keyword.
+ * haXe package to emulate arcane namespace access. Should be used with the using keyword.
  * @author waneck
  */
 
 package away3dlite.namespace;
-//import away3dlite.namespace.Arcanedef;
+
+class _MaterialArcane
+{
+	public static inline function arcaneNS(obj : away3dlite.materials.Material) : _Material
+	{
+		return obj;
+	}
+}
+
+class _Sprite3DArcane
+{
+	public static inline function arcaneNS(obj : away3dlite.sprites.Sprite3D) : _Sprite3D
+	{
+		return obj;
+	}
+}
 
 class _RendererArcane
 {
-	public static inline function arcane(obj : away3dlite.core.render.Renderer) : _Renderer
+	public static inline function arcaneNS(obj : away3dlite.core.render.Renderer) : _Renderer
 	{
 		return obj;
 	}
@@ -16,7 +31,7 @@ class _RendererArcane
 
 class _ClippingArcane
 {
-	public static function arcane(obj : away3dlite.core.clip.Clipping) : _Clipping
+	public static function arcaneNS(obj : away3dlite.core.clip.Clipping) : _Clipping
 	{
 		return obj;
 	}
@@ -24,7 +39,7 @@ class _ClippingArcane
 
 class _View3DArcane
 {
-	public static inline function arcane(obj : away3dlite.containers.View3D) : _View3D
+	public static inline function arcaneNS(obj : away3dlite.containers.View3D) : _View3D
 	{
 		return obj;
 	}
@@ -32,7 +47,7 @@ class _View3DArcane
 
 class _AbstractPrimitiveArcane
 {
-	public static inline function arcane(obj : away3dlite.loaders.AbstractParser) : _AbstractParser
+	public static inline function arcaneNS(obj : away3dlite.loaders.AbstractParser) : _AbstractParser
 	{
 		return obj;
 	}
@@ -40,7 +55,7 @@ class _AbstractPrimitiveArcane
 
 class _Camera3DArcane
 {
-	public static inline function arcane(obj : away3dlite.cameras.Camera3D) : _Camera3D
+	public static inline function arcaneNS(obj : away3dlite.cameras.Camera3D) : _Camera3D
 	{
 		return obj;
 	}
@@ -48,7 +63,7 @@ class _Camera3DArcane
 
 class _AbstractParserArcane
 {
-	public static inline function arcane(obj : away3dlite.loaders.AbstractParser) : _AbstractParser
+	public static inline function arcaneNS(obj : away3dlite.loaders.AbstractParser) : _AbstractParser
 	{
 		return obj;
 	}
@@ -56,7 +71,7 @@ class _AbstractParserArcane
 
 class _Scene3DArcane
 {
-	public static inline function arcane(obj : away3dlite.containers.Scene3D) : _Scene3D
+	public static inline function arcaneNS(obj : away3dlite.containers.Scene3D) : _Scene3D
 	{
 		return obj;
 	}
@@ -64,7 +79,7 @@ class _Scene3DArcane
 
 class _ObjectContainer3DArcane
 {
-	public static inline function arcane(obj : away3dlite.containers.ObjectContainer3D) : _ObjectContainer3D
+	public static inline function arcaneNS(obj : away3dlite.containers.ObjectContainer3D) : _ObjectContainer3D
 	{
 		return obj;
 	}
@@ -72,12 +87,12 @@ class _ObjectContainer3DArcane
 
 class _MeshArcane
 {
-	public static inline function arcane(obj : away3dlite.core.base.Mesh) : _Mesh
+	public static inline function arcaneNS(obj : away3dlite.core.base.Mesh) : _Mesh
 	{
 		return obj;
 	}
 	
-	public static function arcane_ns(obj : away3dlite.core.base.Mesh) : _Mesh
+	public static inline function arcane_ns(obj : away3dlite.core.base.Mesh) : _Mesh
 	{
 		return obj;
 	}
@@ -85,7 +100,7 @@ class _MeshArcane
 
 class _Object3DArcane
 {
-	public static inline function arcane(obj : away3dlite.core.base.Object3D) : _Object3D
+	public static inline function arcaneNS(obj : away3dlite.core.base.Object3D) : _Object3D
 	{
 		return obj;
 	}
@@ -93,6 +108,7 @@ class _Object3DArcane
 
 
 
+import away3dlite.cameras.Camera3D;
 import away3dlite.containers.Scene3D;
 import away3dlite.containers.View3D;
 import away3dlite.core.base.Mesh;
@@ -104,6 +120,27 @@ import flash.display.Sprite;
 import flash.geom.Matrix3D;
 import away3dlite.core.base.Face;
 import flash.Vector;
+import flash.display.TriangleCulling;
+
+private typedef _Material = {
+	/** @private */
+	/*arcane*/ private var _id:Vector<UInt>;
+	/** @private */
+	/*arcane*/ private var _faceCount:Vector<UInt>;
+	/** @private */
+	/*arcane*/ private function notifyActivate(scene:Scene3D):Void;
+	/** @private */
+	/*arcane*/ private function notifyDeactivate(scene:Scene3D):Void;
+}
+
+private typedef _Sprite3D = {
+	/** @private */
+	/*arcane*/ private var index:Int;
+	/** @private */
+	/*arcane*/ private var indices:Vector<Int>;
+	/** @private */
+	/*arcane*/ private var uvtData:Vector<Float>;
+}
 
 private typedef _Renderer =
 {
@@ -176,11 +213,15 @@ private typedef _Object3D =
 	/** @private */
 	/*arcane*/ private function updateScene(val:Scene3D):Void;
 	/** @private */
-	/*arcane*/ private function project(projectionMatrix3D:Matrix3D, ?parentSceneMatrix3D:Matrix3D):Void;
+	/*arcane*/ private function project(camera:Camera3D, ?parentSceneMatrix3D:Matrix3D):Void;
 }
 
 private typedef _Mesh =
 {>_Object3D,
+	/** @private */
+	/*arcane*/ private var _materialsDirty:Bool;
+	/** @private */
+	/*arcane*/ private var _materialsCacheList:Vector<Material>;
 	/** @private */
 	/*arcane*/ private var _vertexId:Int;
 	/** @private */
@@ -190,16 +231,21 @@ private typedef _Mesh =
 	/** @private */
 	/*arcane*/ private var _indices:Vector<Int>;
 	/** @private */
-	/*arcane*/ private var _triangles:GraphicsTrianglePath;
+	/*arcane*/ private var _indicesTotal:Int;
+	/** @private */
+	/*arcane*/ private var _culling:TriangleCulling;
 	/** @private */
 	/*arcane*/ private var _faces:Vector<Face>;
+	/** @private */
+	/*arcane*/ private var _faceLengths:Vector<Int>;
 	/** @private */
 	/*arcane*/ private var _sort:Vector<Int>;
 	/** @private */
 	/*arcane*/ private var _vertices:Vector<Float>;
 	/** @private */
 	/*arcane*/ private var _faceMaterials:Vector<Material>;
-	/*arcane */ private function buildFaces():Void;
+	/** @private */	
+	/*arcane*/ private function buildFaces():Void;
 }
 
 private typedef _ObjectContainer3D = 
@@ -209,7 +255,19 @@ private typedef _ObjectContainer3D =
 
 private typedef _Scene3D =
 {>_ObjectContainer3D,
-	/*arcane*/ private var _dirtyFaces:Bool;
+	/*arcane*/ private var _id:UInt;
+	/** @private */
+	/*arcane*/ private var _broadcaster:Sprite;
+	/** @private */
+	/*arcane*/ private var _materialsSceneList:Vector<Material>;
+	/** @private */
+	/*arcane*/ private var _materialsPreviousList:Vector<Material>;
+	/** @private */
+	/*arcane*/ private var _materialsNextList:Vector<Material>;
+	/** @private */
+	/*arcane*/ private function removeSceneMaterial(mat:Material):Void;
+	/** @private */
+	/*arcane*/ private function addSceneMaterial(mat:Material):Void;
 }
 
 private typedef _Camera3D = {

@@ -38,9 +38,9 @@
 				_output = _output.add(_position);
             }
             
-            _vertices[_startIndex] = _output.x;
-            _vertices[_startIndex + 1] = _output.y;
-            _vertices[_startIndex + 2] = _output.z;
+            _vertices[int(_startIndex)] = _output.x;
+            _vertices[int(_startIndex + 1)] = _output.y;
+            _vertices[int(_startIndex + 2)] = _output.z;
         }
         
         public function clone():SkinVertex

@@ -15,30 +15,33 @@ class GeometryData
 	public var name:String;
 	
 	/**
-	 * Array of vertex objects.
-	 *
-	 * @see away3d.core.base.Vertex
+	 * Array of vertex data.
 	 */
 	public var vertices:Vector<Float>;
 	
 	/**
-	 * Array of skinvertex objects.
-	 *
-	 * @see away3d.core.base.Vertex
+	 * Array of skinvertex data.
 	 */
 	public var skinVertices:Vector<SkinVertex>;	
 	/**
-	 * Array of uv objects.
-	 *
-	 * see@ away3d.core.base.UV
+	 * Array of uv data.
 	 */
 	public var uvtData:Vector<Float>;
 	
+	/**
+	 * Array of indices data.
+	 */
 	public var indices:Vector<Int>;
+	
+	/**
+	 * Array of face indices length data.
+	 */
+	public var faceLengths:Vector<Int>;	
+	
 	/**
 	 * Array of face data objects.
 	 *
-	 * @see away3d.loaders.data.FaceData
+	 * @see away3dlite.loaders.data.FaceData
 	 */
 	public var faces:Array<FaceData>;
 	
@@ -55,7 +58,7 @@ class GeometryData
 	/**
 	 * Array of skin controller objects used in bone animations
 	 * 
-	 * @see away3d.animators.skin.SkinController
+	 * @see away3dlite.animators.skin.SkinController
 	 */
 	public var skinControllers:Array<SkinController>;
 	
@@ -108,6 +111,7 @@ class GeometryData
 		vertices = new Vector<Float>();
 		skinVertices = new Vector<SkinVertex>();
 		uvtData = new Vector<Float>();
+		faceLengths = new Vector<Int>();
 		
 	}
 }

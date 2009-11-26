@@ -78,7 +78,7 @@ package away3dlite.animators.bones
 				
 				while (i--) {
 					if (type[i] == "transform") {
-						target.transform = param[_index][i];
+						target.transform.matrix3D = param[_index][i];
 					} else if (type[i] == "visibility") {
 						target.visible = param[_index][i] > 0;
 					} else {

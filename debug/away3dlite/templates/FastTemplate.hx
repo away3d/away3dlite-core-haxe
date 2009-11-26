@@ -4,8 +4,7 @@ import away3dlite.core.render.FastRenderer;
 
 
 /**
- * Fast Template
- * @author katopz
+ * Template setup designed for speed.
  */
 class FastTemplate extends Template
 {
@@ -15,6 +14,7 @@ class FastTemplate extends Template
 		
 		view.renderer = renderer;
 		view.clipping = clipping;
+		view.mouseEnabled3D = false;
 	}
 	
 	public function new()
@@ -23,6 +23,10 @@ class FastTemplate extends Template
 		clipping = new Clipping();
 		super();
 	}
+	
+	/**
+	 * The renderer object used in the template.
+	 */
 	public var renderer:FastRenderer;
 	
 	/**

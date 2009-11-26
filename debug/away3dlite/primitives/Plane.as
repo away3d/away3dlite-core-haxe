@@ -41,8 +41,8 @@
                     var c:int = (_segmentsW + 1)*(j - 1) + i - 1;
                     var d:int = (_segmentsW + 1)*(j - 1) + i;
                     
-                    _indices.push(a,b,c);
-                    _indices.push(a,c,d);
+                    _indices.push(a,b,c,d);
+                    _faceLengths.push(4);
                 }
             }
     	}

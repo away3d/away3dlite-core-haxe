@@ -56,10 +56,17 @@ class Sphere extends AbstractPrimitive
 				var c:Int = (_segmentsW + 1)*(j - 1) + i - 1;
 				var d:Int = (_segmentsW + 1)*(j - 1) + i;
 				
-				if (j < _segmentsH)
-					_indices.xyzpush(a,b,c);
-				if (j > 1)
-					_indices.xyzpush(a,c,d);
+				if (j == _segmentsH)
+				{
+					_indices.xyzpush(a, c, d);
+					_faceLengths.push(3);
+				} else if (j == 1) {
+					_indices.xyzpush(a, b, c);
+					_faceLengths.push(3);
+				} else {
+					_indices.push4(a, b, c, d);
+					_faceLengths.push(4);
+				}
 			}
 		}
 	}

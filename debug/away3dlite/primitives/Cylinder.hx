@@ -254,7 +254,7 @@ class Cylinder extends AbstractPrimitive
 		var cylinder:Cylinder = (object != null) ? (object.downcast(Cylinder)) : new Cylinder();
 		super.clone(cylinder);
 		cylinder.radius = _radius;
-		cylinder.height = __height;
+		cylinder._height = __height;
 		cylinder.segmentsW = _segmentsW;
 		cylinder.segmentsH = _segmentsH;
 		cylinder.openEnded = _openEnded;

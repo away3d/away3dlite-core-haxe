@@ -1,4 +1,5 @@
 package away3dlite.materials;
+
 import flash.display.BitmapData;
 import flash.display.IGraphicsData;
 import flash.Lib;

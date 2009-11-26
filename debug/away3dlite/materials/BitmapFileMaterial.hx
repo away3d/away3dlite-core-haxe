@@ -1,4 +1,5 @@
 package away3dlite.materials;
+
 import away3dlite.events.MaterialEvent;
 import flash.display.Bitmap;
 import flash.display.BitmapData;
@@ -10,7 +11,7 @@ import flash.net.URLRequest;
 
 using away3dlite.haxeutils.HaxeUtils;
 
- /**
+/**
  * Dispatched when the material completes a file load successfully.
  * 
  * @eventType away3dlite.events.MaterialEvent

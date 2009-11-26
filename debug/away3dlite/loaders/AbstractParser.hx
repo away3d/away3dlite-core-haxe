@@ -138,16 +138,12 @@ class AbstractParser extends EventDispatcher
 			{
 				case MaterialData.TEXTURE_MATERIAL:
 					_materialLibrary.loadRequired = true;
-					break;
 				case MaterialData.COLOR_MATERIAL:
 					_materialData.material = new ColorMaterial(_materialData.diffuseColor, _materialData.alpha);
-					break;
 				//case MaterialData.SHADING_MATERIAL:
 				//	_materialData.material = new ShadingColorMaterial({ambient:_materialData.ambientColor, diffuse:_materialData.diffuseColor, specular:_materialData.specularColor});
-				//	break;
 				case MaterialData.WIREFRAME_MATERIAL:
 					_materialData.material = new WireframeMaterial();
-					break;
 			}
 		}
 	}
@@ -247,7 +243,7 @@ class AbstractParser extends EventDispatcher
 		_totalChunks = 0;
 		_parsedChunks = 0;
 		_broadcaster = new Sprite();
-		parseTimeout = 40000;
+		parseTimeout = 10000;
 		super();
 		
 		//setup default libs

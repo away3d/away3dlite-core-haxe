@@ -25,7 +25,7 @@ package away3dlite.materials
 			
 			_color = val;
 			
-			_graphicsStroke.fill = new GraphicsSolidFill(_color);
+			(_graphicsStroke.fill as GraphicsSolidFill).color = _color;
 		}
 		
 		/**
@@ -42,6 +42,8 @@ package away3dlite.materials
 				return;
 			
 			_alpha = val;
+			
+			(_graphicsStroke.fill as GraphicsSolidFill).alpha = _alpha;
 		}
         
 		/**
@@ -57,7 +59,7 @@ package away3dlite.materials
 			_color = color;
 			_alpha = alpha;
 			
-			_graphicsStroke.fill = new GraphicsSolidFill(_color);
+			_graphicsStroke.fill = new GraphicsSolidFill(_color, _alpha);
 			_graphicsStroke.thickness = 1;
 			
 			graphicsData = Vector.<IGraphicsData>([_graphicsStroke, _triangles]);

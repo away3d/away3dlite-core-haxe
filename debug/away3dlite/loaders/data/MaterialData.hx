@@ -1,4 +1,4 @@
-	package away3dlite.loaders.data;
+package away3dlite.loaders.data;
 
 import away3dlite.core.base.Face;
 import away3dlite.core.base.Mesh;
@@ -16,7 +16,7 @@ using away3dlite.haxeutils.HaxeUtils;
 /**
  * Data class for the material data of a face.
  * 
- * @see away3d.loaders.data.FaceData
+ * @see away3dlite.loaders.data.FaceData
  */
 class MaterialData
 {
@@ -109,13 +109,8 @@ class MaterialData
 		
 		for (face in faces)
 		{
-			if (_material != null)
-				face.material = _material;
-			else
-				face.material = face.mesh.material;
-			
-			//face.material = face.mesh.arcane()._faceMaterials[face.index] = (_material != null) ?  _material : face.mesh.material;
-			face.mesh.arcane()._faceMaterials[face.index] = face.material;
+			face.mesh.arcaneNS()._faceMaterials[face.faceIndex] = _material;
+			face.mesh.arcaneNS()._materialsDirty = true;
 		}
 		return val;
 	}

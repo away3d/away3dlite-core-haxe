@@ -11,21 +11,21 @@ package away3dlite.materials
 	 * 
 	 * @eventType away3dlite.events.MaterialEvent
 	 */
-	[Event(name="loadSuccess",type="away3d.events.MaterialEvent")]
+	[Event(name="loadSuccess",type="away3dlite.events.MaterialEvent")]
     			
 	 /**
 	 * Dispatched when the material fails to load a file.
 	 * 
 	 * @eventType away3dlite.events.MaterialEvent
 	 */
-	[Event(name="loadError",type="away3d.events.MaterialEvent")]
+	[Event(name="loadError",type="away3dlite.events.MaterialEvent")]
     			
 	 /**
 	 * Dispatched every frame the material is loading.
 	 * 
 	 * @eventType away3dlite.events.MaterialEvent
 	 */
-	[Event(name="loadProgress",type="away3d.events.MaterialEvent")]
+	[Event(name="loadProgress",type="away3dlite.events.MaterialEvent")]
 	
     /**
     * Bitmap material that loads it's texture from an external bitmapasset file.

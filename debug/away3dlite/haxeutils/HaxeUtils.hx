@@ -1,6 +1,5 @@
 ﻿/**
  * Helper class for as3 compatibility
- * @author waneck
  */
 
 package away3dlite.haxeutils;
@@ -30,10 +29,19 @@ class HaxeUtils
 	{
 		return Std.parseInt(object.asString());
 	}
+	
 }
 
 class VectorUtils
 {
+	public static inline function push4<T>(arr:Vector<T>, a1:T, a2:T, a3:T, a4:T)
+	{
+		arr.push(a1);
+		arr.push(a2);
+		arr.push(a3);
+		arr.push(a4);
+	}
+	
 	public static inline function xyzpush<T>(arr:Vector<T>, a1:T, a2:T, a3:T)
 	{
 		arr.push(a1);
@@ -56,6 +64,14 @@ class ArrayUtils
 		return i;
 	}
 	
+	public static inline function push4<T>(arr:Array<T>, a1:T, a2:T, a3:T, a4:T)
+	{
+		arr.push(a1);
+		arr.push(a2);
+		arr.push(a3);
+		arr.push(a4);
+	}
+	
 	public static inline function xyzpush<T>(arr:Array<T>, a1:T, a2:T, a3:T)
 	{
 		arr.push(a1);
@@ -70,22 +86,13 @@ class ArrayUtils
 	}
 }
 
+//Helper class for fast, non-cross-platform operations on flash
+
 class StringUtils
 {
-	//TODO: Clean up, look for a more efficient way to use EReg without risking to have an error throwing (!)
 	public static function match(str:String, regex:EReg):Array<String>
 	{
-		//regex.match(str);
-		return untyped regex.r.exec(str);
-		/*var retval = [];
-		regex.match(str);
-		regex.customReplace(str, function(_ereg:EReg)
-		{
-			var a = _ereg.matched(0);
-			retval.push(a);
-			return a;
-		});
-		return retval;*/
+		return untyped str.match(regex.r);
 	}
 	
 	public static inline function substring(str:String, startIndex:Int, endIndex:Int):String
@@ -93,15 +100,9 @@ class StringUtils
 		return str.substr(startIndex, endIndex - startIndex);
 	}
 	
-	public static inline function parseInt( str:String ):Int
+	public static inline function charCode(str:String, at:Int):Int
 	{
-		return untyped __global__["parseInt"](str);
+		return untyped str.cca(at);
 	}
-	
-	public static inline function parseFloat( str:String ):Float
-	{
-		return untyped __global__["parseFloat"](str);
-	}
-	
 	
 }

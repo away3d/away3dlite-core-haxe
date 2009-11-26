@@ -18,7 +18,7 @@ package away3dlite.templates
 			
 			view.renderer = renderer;
 			view.clipping = clipping;
-			view.mouseEnabled = false;
+			view.mouseEnabled3D = false;
 		}
 		
 		/**

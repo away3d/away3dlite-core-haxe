@@ -1,6 +1,6 @@
-//OK
-
 package away3dlite.core.base;	
+
+import away3dlite.cameras.Camera3D;
 import away3dlite.containers.Scene3D;
 import away3dlite.materials.Material;
 import away3dlite.materials.WireColorMaterial;
@@ -15,10 +15,14 @@ import flash.Vector;
 using away3dlite.namespace.Arcane;
 
 /**
- * @author robbateman
+ * Basic geometry object
  */
 class Mesh extends Object3D
 {
+	/** @private */
+	/*arcane*/ private var _materialsDirty:Bool;
+	/** @private */
+	/*arcane*/ private var _materialsCacheList:Vector<Material>;
 	/** @private */
 	/*arcane*/ private var _vertexId:Int;
 	/** @private */
@@ -28,9 +32,13 @@ class Mesh extends Object3D
 	/** @private */
 	/*arcane*/ private var _indices:Vector<Int>;
 	/** @private */
-	/*arcane*/ private var _triangles:GraphicsTrianglePath;
+	/*arcane*/ private var _indicesTotal:Int;
+	/** @private */
+	/*arcane*/ private var _culling:TriangleCulling;
 	/** @private */
 	/*arcane*/ private var _faces:Vector<Face>;
+	/** @private */
+	/*arcane*/ private var _faceLengths:Vector<Int>;
 	/** @private */
 	/*arcane*/ private var _sort:Vector<Int>;
 	/** @private */
@@ -43,12 +51,18 @@ class Mesh extends Object3D
 		if (scene == val)
 			return;
 		
+		if (_scene != null)
+			buildMaterials(true);
+		
 		_scene = val;
+		
+		if (_scene != null)
+			buildMaterials();
 	}
 	/** @private */
-	/*arcane*/ private override function project(projectionMatrix3D:Matrix3D, ?parentSceneMatrix3D:Matrix3D):Void
+	/*arcane*/ private override function project(camera:Camera3D, ?parentSceneMatrix3D:Matrix3D):Void
 	{
-		super.project(projectionMatrix3D, parentSceneMatrix3D);
+		super.project(camera, parentSceneMatrix3D);
 		
 		// project the normals
 		//if (material is IShader)
@@ -56,31 +70,47 @@ class Mesh extends Object3D
 		
 		//DO NOT CHANGE vertices getter!!!!!!!
 		Utils3D.projectVectors(_viewMatrix3D, vertices, _screenVertices, _uvtData);
+		
+		if (_materialsDirty)
+			buildMaterials();
+		
+		var i:Int = _materialsCacheList.length;
+		var mat:Material;
+		while (i-- != 0) {
+			if ((mat = _materialsCacheList[i]) != null) {
+				//update rendering faces in the scene
+				untyped _scene._materialsNextList[i] = mat;
+				
+				//update material if material is a shader
+			}
+		}
 	}
 	/** @private */	
 	/*arcane*/ private function buildFaces():Void
 	{
-		_faceMaterials.fixed = false;
-		_faces.length = _sort.length = 0;
-		var i:Int = _faces.length = _faceMaterials.length = Std.int(_indices.length/3);
+		_faces.fixed = _sort.fixed = false;
+		_indicesTotal = _faces.length = _sort.length = 0;
 		
-		while (i-- != 0)
-			_faces[i] = new Face(this, i);
+		var i:Int = _faces.length = _sort.length = _faceLengths.length;
+		var index:Int = _indices.length;
+		var faceLength:Int;
+		
+		while (i-- != 0) {
+			faceLength = _faceLengths[i];
+			
+			if (faceLength == 3)
+				_indicesTotal += 3;
+			else if (faceLength == 4)
+				_indicesTotal += 6;
+			_faces[i] = new Face(this, i, index -= faceLength, faceLength);
+		}
 		
 		// speed up
-		_vertices.fixed = true;
-		_uvtData.fixed = true;
-		_indices.fixed = true;
-		_faceMaterials.fixed = true;
-		
-		// calculate normals for the shaders
-		//if (_material is IShader)
-		//	IShader(_material).calculateNormals(_vertices, _indices, _uvtData, _vertexNormals);
-		
-		if (_scene != null)
-			_scene.arcane()._dirtyFaces = true;
+		_vertices.fixed = _uvtData.fixed = _indices.fixed = _faceLengths.fixed = _faces.fixed = _sort.fixed = true;
 		
 		updateSortType();
+		
+		_materialsDirty = true;
 	}
 	
 	private var _vertexNormals:Vector<Float>;
@@ -89,18 +119,85 @@ class Mesh extends Object3D
 	private var _bothsides:Bool;
 	private var _sortType:String;
 	
+	private function removeMaterial(mat:Material):Void
+	{
+		//HAXE :
+		//Avoiding recursive inline bug
+		var sid:UInt = untyped _scene._id;
+		var i:UInt = mat.arcaneNS()._id[sid];
+		
+		_materialsCacheList[mat.arcaneNS()._id[sid]] = null;
+		
+		if (_materialsCacheList.length == (i + 1))
+			_materialsCacheList.length--;
+	}
+	
+	private function addMaterial(mat:Material):Void
+	{
+		var sid:UInt = untyped _scene._id;
+		var i:UInt = mat.arcaneNS()._id[sid];
+		
+		if (_materialsCacheList.length <= i)
+			_materialsCacheList.length = i + 1;
+		
+		_materialsCacheList[i] = mat;
+	}
+	
+	private function buildMaterials(?clear:Bool = false):Void
+	{
+		_materialsDirty = false;
+		
+		if (_scene != null) {
+			var oldMaterial:Material = null;
+			var newMaterial:Material = null;
+			
+			//update face materials
+			_faceMaterials.fixed = false;
+			_faceMaterials.length = _faceLengths.length;
+			
+			var i:Int = _faces.length;
+			while (i-- > 0) {
+				oldMaterial = _faces[i].material;
+				
+				if (!clear)
+					newMaterial = (_faceMaterials[i] != null) ? _faceMaterials[i] : _material;
+				
+				//reset face materials
+				if (oldMaterial != newMaterial) {
+					//remove old material from lists
+					if (oldMaterial != null) {
+						untyped _scene.removeSceneMaterial(oldMaterial);
+						removeMaterial(oldMaterial);
+					}
+					
+					//add new material to lists
+					if (newMaterial != null) {
+						untyped _scene.addSceneMaterial(newMaterial);
+						addMaterial(newMaterial);
+					}
+					
+					//set face material
+					_faces[i].material = newMaterial;
+				}
+				
+			}
+		}
+		
+		_faceMaterials.fixed = true;
+	}
+	
 	private function updateSortType():Void
 	{
 		
 		var face:Face;
 		switch (_sortType) {
-			case MeshSortType.CENTER:
+			case SortType.CENTER:
 				for (face in _faces)
 					face.calculateScreenZ = face.calculateAverageZ;
-			case MeshSortType.FRONT:
+			case SortType.FRONT:
 				for (face in _faces)
 					face.calculateScreenZ = face.calculateNearestZ;
-			case MeshSortType.BACK:
+			case SortType.BACK:
 				for (face in _faces)
 					face.calculateScreenZ = face.calculateFurthestZ;
 			default:
@@ -143,21 +240,13 @@ class Mesh extends Object3D
 	}
 	private function set_material(val:Material):Material
 	{
+		val = (val != null) ? val : new WireColorMaterial();
+		
 		if (_material == val)
 			return val;
 		
-		_material = val;
-		
-		//update property in faces
-		var i:Int = _faces.length;
-		while (i-- != 0)
-			_faces[i].material = (_faceMaterials[i] != null) ? _faceMaterials[i] : _material;
-			
-		// calculate normals for the shaders
-		//if (_material is IShader)
-		//	IShader(_material).calculateNormals(_vertices, _indices, _uvtData, _vertexNormals);
-		
-		return val;
+		_materialsDirty = true;
+		return _material = val;
 	}
 	
 	/**
@@ -175,9 +264,9 @@ class Mesh extends Object3D
 		_bothsides = val;
 		
 		if (_bothsides) {
-			_triangles.culling = TriangleCulling.NONE;
+			_culling = TriangleCulling.NONE;
 		} else {
-			_triangles.culling = TriangleCulling.POSITIVE;
+			_culling = TriangleCulling.POSITIVE;
 		}
 		return val;
 	}
@@ -213,7 +302,8 @@ class Mesh extends Object3D
 	{
 		super();
 		
-		_triangles = new GraphicsTrianglePath();
+		_materialsCacheList = new flash.Vector<Material>();
+		_faceLengths = new Vector<Int>();
 		_faces = new Vector<Face>();
 		_sort = new Vector<Int>();
 		_vertices = new Vector<Float>();
@@ -222,14 +312,14 @@ class Mesh extends Object3D
 		sortFaces = true;
 		
 		// private use
-		_screenVertices = _triangles.vertices = new Vector<Float>();
-		_uvtData = _triangles.uvtData = new Vector<Float>();
-		_indices = _triangles.indices = new Vector<Int>();
+		_screenVertices = new Vector<Float>();
+		_uvtData = new Vector<Float>();
+		_indices = new Vector<Int>();
 		
 		//setup default values
-		this.material = (material != null) ? material : new WireColorMaterial();
+		this.material = material;
 		this.bothsides = false;
-		this.sortType = MeshSortType.CENTER;
+		this.sortType = SortType.CENTER;
 	}
 	
 	/**
@@ -246,11 +336,13 @@ class Mesh extends Object3D
 		mesh.material = material;
 		mesh.sortType = sortType;
 		mesh.bothsides = bothsides;
-		mesh.arcane()._vertices = vertices;
-		mesh._uvtData = mesh._triangles.uvtData = _uvtData.concat(Lib.vectorOfArray([]));
+		mesh.arcaneNS()._vertices = vertices;
+		mesh._uvtData = _uvtData.concat(Lib.vectorOfArray([]));
 		mesh._faceMaterials = _faceMaterials;
 		mesh._indices = _indices.concat(Lib.vectorOfArray([]));
+		mesh._faceLengths = _faceLengths;
 		mesh.buildFaces();
+		mesh.buildMaterials();
 		
 		return mesh;
 	}

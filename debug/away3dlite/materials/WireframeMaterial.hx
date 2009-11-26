@@ -31,7 +31,7 @@ class WireframeMaterial extends Material
 		
 		_color = val;
 		
-		_graphicsStroke.fill = new GraphicsSolidFill(_color);
+		Lib.as(_graphicsStroke.fill, GraphicsSolidFill).color = _color;
 		return val;
 	}
 	
@@ -44,12 +44,15 @@ class WireframeMaterial extends Material
 	{
 		return _alpha;
 	}
-	private inline function set_alpha(val:Float):Float
+	private function set_alpha(val:Float):Float
 	{
-		/*if (_alpha == val)
-			return val;*/
+		if (_alpha == val)
+			return val;
 		
-		return _alpha = val;
+		_alpha = val;
+		
+		Lib.as(_graphicsStroke.fill, GraphicsSolidFill).alpha = _alpha;
+		return val;
 	}
 	
 	/**
@@ -65,7 +68,7 @@ class WireframeMaterial extends Material
 		_color = color;
 		_alpha = alpha;
 		
-		_graphicsStroke.fill = new GraphicsSolidFill(_color);
+		_graphicsStroke.fill = new GraphicsSolidFill(_color, _alpha);
 		_graphicsStroke.thickness = 1;
 		
 		graphicsData = new Vector<IGraphicsData>();

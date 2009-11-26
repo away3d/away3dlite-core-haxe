@@ -70,10 +70,16 @@
                     var c:int = (_segmentsW + 1)*(j - 1) + i - 1;
                     var d:int = (_segmentsW + 1)*(j - 1) + i;
                     
-                    if (j < _segmentsH)
-                    	_indices.push(a,b,c);
-                    if (j > jMin)
+                    if (j == _segmentsH) {
 						_indices.push(a,c,d);
+						_faceLengths.push(3);
+                    } else if (j == jMin) {
+                    	_indices.push(a,b,c);
+                    	_faceLengths.push(3);
+                    } else {
+                    	_indices.push(a,b,c,d);
+                    	_faceLengths.push(4);
+                    }
                 }
             }
             

@@ -2,11 +2,9 @@ package away3dlite.materials
 {
 	import flash.display.*;
 	
-/**
-
- * BitmapMaterial : embed image as texture
- * @author katopz
- */
+    /**
+     * Basic bitmap material
+     */
 	public class BitmapMaterial extends Material
 	{
 		/**
@@ -71,6 +69,8 @@ package away3dlite.materials
 		 */
 		public function BitmapMaterial(bitmap:BitmapData = null)
 		{
+			super();
+			
 			_graphicsBitmapFill.bitmapData = bitmap || new BitmapData(100, 100, false, 0x000000);
 			
 			graphicsData = Vector.<IGraphicsData>([_graphicsStroke, _graphicsBitmapFill, _triangles, _graphicsEndFill]);

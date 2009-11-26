@@ -173,7 +173,7 @@ package away3dlite.loaders
 			//organise the materials
 			var _materialData:MaterialData;
             for (var name:String in _materials) {
-  ð  þ          _materialData = materialLibrary.addMaterial(name);
+                _materialData = materialLibrary.addMaterial(name);
                 _materialData.material = Cast.material(_materials[name]);
 				
                 //determine material type

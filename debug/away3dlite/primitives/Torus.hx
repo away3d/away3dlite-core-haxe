@@ -57,8 +57,8 @@ class Torus extends AbstractPrimitive
 				var c:Int = (_segmentsT + 1)*(j - 1) + i - 1;
 				var d:Int = (_segmentsT + 1)*(j - 1) + i;
 				
-					_indices.xyzpush(a,b,c);
-					_indices.xyzpush(a,c,d);
+					_indices.push4(a,b,c,d);
+					_faceLengths.push(4);
 			}
 		}
 	}

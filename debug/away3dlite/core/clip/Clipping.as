@@ -227,6 +227,7 @@ package away3dlite.core.clip
     	protected var _indexZ:int;
         protected var _screenVerticesCull:Vector.<int> = new Vector.<int>();
         protected var _cullCount:int;
+        protected var _cullTotal:int;
 		protected var _minX:Number = -100000;
 		protected var _minY:Number = -100000;
 		protected var _minZ:Number = -100000;

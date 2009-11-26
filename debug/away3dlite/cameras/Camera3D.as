@@ -24,19 +24,26 @@ package away3dlite.cameras
 			
 			if(_fieldOfViewDirty) {
 				_fieldOfViewDirty = false;
-				_projection.fieldOfView = 360*Math.atan2(stage.stageWidth, 2*_zoom*_focus)/Math.PI;
+				//_projection.fieldOfView = 360*Math.atan2(loaderInfo.width, 2*_zoom*_focus)/Math.PI;
+				_projection.focalLength = _zoom*_focus;
 			}
 			
-			_projectionMatrix3D = transform.matrix3D.clone();
-			_projectionMatrix3D.prependTranslation(0, 0, -_focus);
-			_projectionMatrix3D.invert();
-			_projectionMatrix3D.append(_projection.toMatrix3D());
+			_projectionMatrix3D = _projection.toMatrix3D();
+			
+			_invSceneMatrix3D.rawData = transform.matrix3D.rawData;
+			_invSceneMatrix3D.prependTranslation(0, 0, -_focus);
+			_invSceneMatrix3D.invert();
+			
+			_screenMatrix3D.rawData = _invSceneMatrix3D.rawData;
+			_screenMatrix3D.append(_projectionMatrix3D);
 		}
 		
 		private var _focus:Number = 100;
 		private var _zoom:Number = 10;
 		private var _projection:PerspectiveProjection;
-		private var _projectionMatrix3D:Matrix3D = new Matrix3D();
+		private var _projectionMatrix3D:Matrix3D;
+		private var _screenMatrix3D:Matrix3D = new Matrix3D();
+		private var _invSceneMatrix3D:Matrix3D = new Matrix3D();
 		private var _fieldOfViewDirty:Boolean = true;
 		
 		protected const toRADIANS:Number = Math.PI/180;
@@ -72,13 +79,29 @@ package away3dlite.cameras
 		}
 		
 		/**
+		 * Returns the 3d matrix representing the camera inverse scene transform for the view.
+		 */
+		public function get invSceneMatrix3D():Matrix3D
+		{
+			return _invSceneMatrix3D;
+		}
+		
+		/**
 		 * Returns the 3d matrix representing the camera projection for the view.
-		 * 
-		 * @see away3dlite.containers.View3D#render()
 		 */
 		public function get projectionMatrix3D():Matrix3D
 		{
 			return _projectionMatrix3D;
+		}
+		
+		/**
+		 * Returns the 3d matrix used in resolving screen space for the render loop.
+		 * 
+		 * @see away3dlite.containers.View3D#render()
+		 */
+		public function get screenMatrix3D():Matrix3D
+		{
+			return _screenMatrix3D;
 		}
 		
 		/**
@@ -93,6 +116,9 @@ package away3dlite.cameras
 			
 			this.zoom = zoom;
 			this.focus = focus;
+			
+			//set default z position
+			z = -1000;
 		}
 	}
 }

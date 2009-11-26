@@ -1,6 +1,7 @@
 package away3dlite.core.base
 {
 	import away3dlite.arcane;
+	import away3dlite.cameras.*;
 	import away3dlite.containers.*;
 	import away3dlite.materials.*;
 	
@@ -10,10 +11,14 @@ package away3dlite.core.base
 	use namespace arcane;
 	
 	/**
-	 * @author robbateman
+	 * Basic geometry object
 	 */
 	public class Mesh extends Object3D
 	{
+		/** @private */
+		arcane var _materialsDirty:Boolean;
+		/** @private */
+		arcane var _materialsCacheList:Vector.<Material> = new Vector.<Material>();
 		/** @private */
 		arcane var _vertexId:int;
 		/** @private */
@@ -23,9 +28,13 @@ package away3dlite.core.base
 		/** @private */
 		arcane var _indices:Vector.<int>;
 		/** @private */
-		arcane var _triangles:GraphicsTrianglePath = new GraphicsTrianglePath();
+		arcane var _indicesTotal:int;
+		/** @private */
+		arcane var _culling:String;
 		/** @private */
 		arcane var _faces:Vector.<Face> = new Vector.<Face>();
+		/** @private */
+		arcane var _faceLengths:Vector.<int> = new Vector.<int>();
 		/** @private */
 		arcane var _sort:Vector.<int> = new Vector.<int>();
 		/** @private */
@@ -38,44 +47,65 @@ package away3dlite.core.base
 			if (scene == val)
 				return;
 			
+			if (_scene)
+				buildMaterials(true);
+			
 			_scene = val;
+			
+			if (_scene)
+				buildMaterials();
 		}
 		/** @private */
-		arcane override function project(projectionMatrix3D:Matrix3D, parentSceneMatrix3D:Matrix3D = null):void
+		arcane override function project(camera:Camera3D, parentSceneMatrix3D:Matrix3D = null):void
 		{
-			super.project(projectionMatrix3D, parentSceneMatrix3D);
-			
+			super.project(camera, parentSceneMatrix3D);
 			// project the normals
 			//if (material is IShader)
 			//	_triangles.uvtData = IShader(material).getUVData(transform.matrix3D.clone());
 			
 			//DO NOT CHANGE vertices getter!!!!!!!
 			Utils3D.projectVectors(_viewMatrix3D, vertices, _screenVertices, _uvtData);
+			
+			if (_materialsDirty)
+				buildMaterials();
+			
+			var i:int = _materialsCacheList.length;
+			var mat:Material;
+			while (i--) {
+				if ((mat = _materialsCacheList[i])) {
+					//update rendering faces in the scene
+					_scene._materialsNextList[i] = mat;
+					
+					//update material if material is a shader
+				}
+			}
 		}
 		/** @private */	
 		arcane function buildFaces():void
 		{
-			_faceMaterials.fixed = false;
-			_faces.length = _sort.length = 0;
-			var i:int = _faces.length = _faceMaterials.length = _indices.length/3;
+			_faces.fixed = _sort.fixed = false;
+			_indicesTotal = _faces.length = _sort.length = 0;
 			
-			while (i--)
-				_faces[i] = new Face(this, i);
+			var i:int = _faces.length = _sort.length = _faceLengths.length;
+			var index:int = _indices.length;
+			var faceLength:int;
+			
+			while (i--) {
+				faceLength = _faceLengths[i];
+				
+				if (faceLength == 3)
+					_indicesTotal += 3;
+				else if (faceLength == 4)
+					_indicesTotal += 6;
+				_faces[i] = new Face(this, i, index -= faceLength, faceLength);
+			}
 			
 			// speed up
-			_vertices.fixed = true;
-			_uvtData.fixed = true;
-			_indices.fixed = true;
-			_faceMaterials.fixed = true;
-			
-			// calculate normals for the shaders
-			//if (_material is IShader)
- 			//	IShader(_material).calculateNormals(_vertices, _indices, _uvtData, _vertexNormals);
- 			
- 			if (_scene)
- 				_scene._dirtyFaces = true;
+			_vertices.fixed = _uvtData.fixed = _indices.fixed = _faceLengths.fixed = _faces.fixed = _sort.fixed = true;
  			
  			updateSortType();
+ 			
+ 			_materialsDirty = true;
 		}
 		
 		protected var _vertexNormals:Vector.<Number>;
@@ -84,20 +114,83 @@ package away3dlite.core.base
 		private var _bothsides:Boolean;
 		private var _sortType:String;
 		
+		private function removeMaterial(mat:Material):void
+		{
+			var i:uint = mat._id[_scene._id];
+			
+			_materialsCacheList[mat._id[_scene._id]] = null;
+			
+			if (_materialsCacheList.length == i + 1)
+				_materialsCacheList.length--;
+		}
+		
+		private function addMaterial(mat:Material):void
+		{
+			var i:uint = mat._id[_scene._id];
+			
+			if (_materialsCacheList.length <= i)
+				_materialsCacheList.length = i + 1;
+			
+			_materialsCacheList[i] = mat;
+		}
+		
+		private function buildMaterials(clear:Boolean = false):void
+		{
+			_materialsDirty = false;
+			
+			if (_scene) {
+				var oldMaterial:Material;
+				var newMaterial:Material;
+				
+				//update face materials
+				_faceMaterials.fixed = false;
+				_faceMaterials.length = _faceLengths.length;
+				
+				var i:int = _faces.length;
+				while (i--) {
+					oldMaterial = _faces[i].material;
+					
+					if (!clear)
+						newMaterial = _faceMaterials[i] || _material;
+					
+					//reset face materials
+					if (oldMaterial != newMaterial) {
+						//remove old material from lists
+						if (oldMaterial) {
+							_scene.removeSceneMaterial(oldMaterial);
+							removeMaterial(oldMaterial);
+						}
+						
+						//add new material to lists
+						if (newMaterial) {
+							_scene.addSceneMaterial(newMaterial);
+							addMaterial(newMaterial);
+						}
+						
+						//set face material
+						_faces[i].material = newMaterial;
+					}
+					
+				}
+			}
+			
+			_faceMaterials.fixed = true;
+		}
+		
 		private function updateSortType():void
 		{
 			
 			var face:Face;
 			switch (_sortType) {
-				case MeshSortType.CENTER:
+				case SortType.CENTER:
 					for each (face in _faces)
 						face.calculateScreenZ = face.calculateAverageZ;
 					break;
-				case MeshSortType.FRONT:
+				case SortType.FRONT:
 					for each (face in _faces)
 						face.calculateScreenZ = face.calculateNearestZ;
 					break;
-				case MeshSortType.BACK:
+				case SortType.BACK:
 					for each (face in _faces)
 						face.calculateScreenZ = face.calculateFurthestZ;
 					break;
@@ -138,19 +231,14 @@ package away3dlite.core.base
 		}
 		public function set material(val:Material):void
 		{
+			val = val || new WireColorMaterial();
+			
 			if (_material == val)
 				return;
 			
 			_material = val;
 			
-			//update property in faces
-			var i:int = _faces.length;
-			while (i--)
-				_faces[i].material = _faceMaterials[i] || _material;
-				
-			// calculate normals for the shaders
-			//if (_material is IShader)
- 			//	IShader(_material).calculateNormals(_vertices, _indices, _uvtData, _vertexNormals);
+			_materialsDirty = true;
 		}
 		
 		/**
@@ -167,9 +255,9 @@ package away3dlite.core.base
 			_bothsides = val;
 			
 			if (_bothsides) {
-				_triangles.culling = TriangleCulling.NONE;
+				_culling = TriangleCulling.NONE;
 			} else {
-				_triangles.culling = TriangleCulling.POSITIVE;
+				_culling = TriangleCulling.POSITIVE;
 			}
 		}
 		
@@ -203,14 +291,14 @@ package away3dlite.core.base
 			super();
 			
 			// private use
-			_screenVertices = _triangles.vertices = new Vector.<Number>();
-			_uvtData = _triangles.uvtData = new Vector.<Number>();
-			_indices = _triangles.indices = new Vector.<int>();
+			_screenVertices = new Vector.<Number>();
+			_uvtData = new Vector.<Number>();
+			_indices = new Vector.<int>();
 			
 			//setup default values
-			this.material = material || new WireColorMaterial();
+			this.material = material;
 			this.bothsides = false;
-			this.sortType = MeshSortType.CENTER;
+			this.sortType = SortType.CENTER;
 		}
 		
 		/**
@@ -228,10 +316,12 @@ package away3dlite.core.base
             mesh.sortType = sortType;
             mesh.bothsides = bothsides;
 			mesh._vertices = vertices;
-			mesh._uvtData = mesh._triangles.uvtData = _uvtData.concat();
+			mesh._uvtData = _uvtData.concat();
 			mesh._faceMaterials = _faceMaterials;
 			mesh._indices = _indices.concat();
+			mesh._faceLengths = _faceLengths;
 			mesh.buildFaces();
+			mesh.buildMaterials();
 			
 			return mesh;
         }

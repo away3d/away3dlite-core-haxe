@@ -1,6 +1,6 @@
-//OK
-
 package away3dlite.core.base;
+
+import away3dlite.cameras.Camera3D;
 import away3dlite.containers.Scene3D;
 import away3dlite.loaders.utils.AnimationLibrary;
 import away3dlite.loaders.utils.GeometryLibrary;
@@ -82,17 +82,23 @@ class Object3D extends Sprite
 	{
 	}
 	/** @private */
-	/*arcane*/ private function project(projectionMatrix3D:Matrix3D, ?parentSceneMatrix3D:Matrix3D):Void
+	/*arcane*/ private function project(camera:Camera3D, ?parentSceneMatrix3D:Matrix3D):Void
 	{
-		_sceneMatrix3D = transform.matrix3D.clone();
+		_sceneMatrix3D.rawData = transform.matrix3D.rawData;
 		
 		if (parentSceneMatrix3D != null)
 			_sceneMatrix3D.append(parentSceneMatrix3D);
 			
-		_viewMatrix3D = _sceneMatrix3D.clone();
-		_viewMatrix3D.append(projectionMatrix3D);
+		_viewMatrix3D.rawData = _sceneMatrix3D.rawData;
+		_viewMatrix3D.append(camera.screenMatrix3D);
 		
 		_screenZ = _viewMatrix3D.position.z;
+	}
+	
+	private function copyMatrix3D(m1:Matrix3D, m2:Matrix3D):Void
+	{
+		var rawData:Vector<Float> = m1.rawData.concat(Lib.vectorOfArray([]));
+		m2.rawData = rawData;
 	}
 	
 	/**
@@ -190,6 +196,9 @@ class Object3D extends Sprite
 	public function new()
 	{
 		super();
+		
+		_viewMatrix3D = new Matrix3D();
+		_sceneMatrix3D = new Matrix3D();
 		
 		_screenZ = 0;
 		materialLibrary = new MaterialLibrary();

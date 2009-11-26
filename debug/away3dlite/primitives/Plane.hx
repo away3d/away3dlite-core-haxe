@@ -12,8 +12,8 @@ using away3dlite.haxeutils.HaxeUtils;
 */ 
 class Plane extends AbstractPrimitive
 {
-	//private var _width:Float;
-	//private var _height:Float;
+	private var __width:Float;
+	private var __height:Float;
 	private var _segmentsW:Int;
 	private var _segmentsH:Int;
 	private var _yUp:Bool;
@@ -34,7 +34,7 @@ class Plane extends AbstractPrimitive
 			i = -1;
 			while(++i <= _segmentsW)
 			{
-				_yUp? _vertices.xyzpush((i/_segmentsW - 0.5)*_width, 0, (j/_segmentsH - 0.5)*_height) : _vertices.xyzpush((i/_segmentsW - 0.5)*_width, (j/_segmentsH - 0.5)*_height, 0);
+				_yUp? _vertices.xyzpush((i/_segmentsW - 0.5)*__width, 0, (j/_segmentsH - 0.5)*__height) : _vertices.xyzpush((i/_segmentsW - 0.5)*__width, (j/_segmentsH - 0.5)*__height, 0);
 				_uvtData.xyzpush(i/_segmentsW, 1 - j/_segmentsH, 1);
 			}
 		}
@@ -50,8 +50,8 @@ class Plane extends AbstractPrimitive
 				var c:Int = (_segmentsW + 1)*(j - 1) + i - 1;
 				var d:Int = (_segmentsW + 1)*(j - 1) + i;
 				
-				_indices.xyzpush(a,b,c);
-				_indices.xyzpush(a,c,d);
+				_indices.push4(a,b,c,d);
+				_faceLengths.push(4);
 			}
 		}
 	}
@@ -61,15 +61,15 @@ class Plane extends AbstractPrimitive
 	 */
 	private override function get__width():Float
 	{
-		return _width;
+		return __width;
 	}
 	
 	private override function set__width(val:Float):Float
 	{
-		if (_width == val)
+		if (__width == val)
 			return val;
 		
-		_width = val;
+		__width = val;
 		_primitiveDirty = true;
 		return val;
 	}
@@ -79,15 +79,15 @@ class Plane extends AbstractPrimitive
 	 */
 	private override function get__height():Float
 	{
-		return _height;
+		return __height;
 	}
 	
 	private override function set__height(val:Float):Float
 	{
-		if (_height == val)
+		if (__height == val)
 			return val;
 		
-		_height = val;
+		__height = val;
 		_primitiveDirty = true;
 		return val;
 	}
@@ -162,8 +162,8 @@ class Plane extends AbstractPrimitive
 	{
 		super(material);
 		
-		_width = width;
-		_height = height;
+		__width = width;
+		__height = height;
 		_segmentsW = segmentsW;
 		_segmentsH = segmentsH;
 		_yUp = yUp;
@@ -182,8 +182,8 @@ class Plane extends AbstractPrimitive
 	{
 		var plane:Plane = (object != null) ? object.downcast(Plane) : new Plane();
 		super.clone(plane);
-		plane.width = _width;
-		plane.height = _height;
+		plane._width = __width;
+		plane._height = __height;
 		plane.segmentsW = _segmentsW;
 		plane.segmentsH = _segmentsH;
 		plane.yUp = _yUp;

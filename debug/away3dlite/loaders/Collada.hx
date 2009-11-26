@@ -154,51 +154,54 @@ class Collada extends AbstractParser
 		for (_faceData in _geometryData.faces) {
 			//set face materials
 			_materialData = _faceData.materialData;
-			mesh.arcane()._faceMaterials.push(_materialData.material);
+			mesh.arcaneNS()._faceMaterials.push(_materialData.material);
 			
 			//set vertices
 			i0 = _faceData.v0*3;
 			i1 = _faceData.v1*3;
 			i2 = _faceData.v2*3;
-			mesh.arcane()._vertices.xyzpush(vertices[i0], vertices[i0+1], vertices[i0+2]);
-			buildSkinVertices(_geometryData, _faceData.v0, mesh.arcane()._vertices);
-			mesh.arcane()._vertices.xyzpush(vertices[i1], vertices[i1+1], vertices[i1+2]);
-			buildSkinVertices(_geometryData, _faceData.v1, mesh.arcane()._vertices);
-			mesh.arcane()._vertices.xyzpush(vertices[i2], vertices[i2+1], vertices[i2+2]);
-			buildSkinVertices(_geometryData, _faceData.v2, mesh.arcane()._vertices);
+			mesh.arcaneNS()._vertices.xyzpush(vertices[i0], vertices[i0+1], vertices[i0+2]);
+			buildSkinVertices(_geometryData, _faceData.v0, mesh.arcaneNS()._vertices);
+			mesh.arcaneNS()._vertices.xyzpush(vertices[i1], vertices[i1+1], vertices[i1+2]);
+			buildSkinVertices(_geometryData, _faceData.v1, mesh.arcaneNS()._vertices);
+			mesh.arcaneNS()._vertices.xyzpush(vertices[i2], vertices[i2+1], vertices[i2+2]);
+			buildSkinVertices(_geometryData, _faceData.v2, mesh.arcaneNS()._vertices);
 			
 			//set uvData
 			i0 = _faceData.uv0*3;
 			i1 = _faceData.uv1*3;
 			i2 = _faceData.uv2*3;
-			mesh.arcane()._uvtData.xyzpush(uvtData[i0], uvtData[i0 + 1], uvtData[i0 + 2]);
-			mesh.arcane()._uvtData.xyzpush(uvtData[i1], uvtData[i1 + 1], uvtData[i1 + 2]);
-			mesh.arcane()._uvtData.xyzpush(uvtData[i2], uvtData[i2 + 1], uvtData[i2 + 2]);
+			mesh.arcaneNS()._uvtData.xyzpush(uvtData[i0], uvtData[i0 + 1], uvtData[i0 + 2]);
+			mesh.arcaneNS()._uvtData.xyzpush(uvtData[i1], uvtData[i1 + 1], uvtData[i1 + 2]);
+			mesh.arcaneNS()._uvtData.xyzpush(uvtData[i2], uvtData[i2 + 1], uvtData[i2 + 2]);
 			
 			//set indices
-			mesh.arcane()._indices.xyzpush(i++, i++, i++);
+			mesh.arcaneNS()._indices.xyzpush(i++, i++, i++);
+			
+			//set facelengths
+			mesh.arcaneNS()._faceLengths.push(3);
 		}
 		
 		//store mesh material reference for later setting by the materialLibrary
 		if (_materialData != null)
 			_materialData.meshes.push(mesh);
 		
-		mesh.arcane().buildFaces();
+		mesh.arcaneNS().buildFaces();
 		
 		//store element material reference for later setting by the materialLibrary
-		for (_face in mesh.arcane()._faces)
-			if ((_materialData = _geometryData.faces[_face.index].materialData) != null)
+		for (_face in mesh.arcaneNS()._faces)
+			if ((_materialData = _geometryData.faces[_face.faceIndex].materialData) != null)
 				_materialData.faces.push(_face);
 				
 		if (centerMeshes) {
-			var k:Int = Std.int( mesh.arcane()._vertices.length/3 );
+			var k:Int = Std.int( mesh.arcaneNS()._vertices.length/3 );
 			_moveVector.x = (_geometryData.maxX + _geometryData.minX)/2;
 			_moveVector.y = (_geometryData.maxY + _geometryData.minY)/2;
 			_moveVector.z = (_geometryData.maxZ + _geometryData.minZ)/2;
 			while (k-- != 0) {
-				mesh.arcane()._vertices[k*3] -= _moveVector.x;
-				mesh.arcane()._vertices[k*3+1] -= _moveVector.y;
-				mesh.arcane()._vertices[k*3+2] -= _moveVector.z;
+				mesh.arcaneNS()._vertices[k*3] -= _moveVector.x;
+				mesh.arcaneNS()._vertices[k*3+1] -= _moveVector.y;
+				mesh.arcaneNS()._vertices[k*3+2] -= _moveVector.z;
 			}
 			_moveVector = mesh.transform.matrix3D.transformVector(_moveVector);
 			mesh.x += _moveVector.x;
@@ -290,9 +293,9 @@ class Collada extends AbstractParser
 						
 						switch(channelData.type)
 						{
-							case "translateX":
-							case "translationX":
-							case "transform(3)(0)":
+							case "translateX",
+							"translationX",
+							"transform(3)(0)":
 								channel.type = ["x"];
 								if (yUp) {
 									for (param in channel.param)
@@ -301,9 +304,9 @@ class Collada extends AbstractParser
 									for (param in channel.param)
 										param[0] *= scaling;
 								}
-							case "translateY":
-							case "translationY":
-							case "transform(3)(1)":
+							case "translateY",
+							"translationY",
+							"transform(3)(1)":
 								if (yUp)
 									channel.type = ["y"];
 								else
@@ -311,9 +314,9 @@ class Collada extends AbstractParser
 								
 								for (param in channel.param)
 									param[0] *= -scaling;
-							case "translateZ":
-							case "translationZ":
-							case "transform(3)(2)":
+							case "translateZ",
+							"translationZ",
+							"transform(3)(2)":
 								if (yUp)
 									channel.type = ["z"];
 								else
@@ -321,18 +324,18 @@ class Collada extends AbstractParser
 								
 								for (param in channel.param)
 									param[0] *= scaling;
-							case "jointOrientX":
-							case "rotateXANGLE":
-							case "rotateX":
-							case "RotX":
+							case "jointOrientX",
+							"rotateXANGLE",
+							"rotateX",
+							"RotX":
 								channel.type = [rX];
 								
 								for (param in channel.param)
 										param[0] *= -1;
-							case "jointOrientY":
-							case "rotateYANGLE":
-							case "rotateY":
-							case "RotY":
+							case "jointOrientY",
+							"rotateYANGLE",
+							"rotateY",
+							"RotY":
 								if (yUp)
 									channel.type = [rY];
 								else
@@ -340,31 +343,31 @@ class Collada extends AbstractParser
 								
 								for (param in channel.param)
 									param[0] *= -1;
-							case "jointOrientZ":
-							case "rotateZANGLE":
-							case "rotateZ":
-							case "RotZ":
+							case "jointOrientZ",
+							"rotateZANGLE",
+							"rotateZ",
+							"RotZ":
 								if (yUp)
 									channel.type = [rZ];
 								else
 									channel.type = [rY];
-							case "scaleX":
-							case "transform(0)(0)":
+							case "scaleX",
+							"transform(0)(0)":
 								channel.type = [sX];
-							case "scaleY":
-							case "transform(1)(1)":
+							case "scaleY",
+							"transform(1)(1)":
 								if (yUp)
 									channel.type = [sY];
 								else
 									channel.type = [sZ];
-							case "scaleZ":
-							case "transform(2)(2)":
+							case "scaleZ",
+							"transform(2)(2)":
 								if (yUp)
 									channel.type = [sZ];
 								else
 									channel.type = [sY];
-							case "translate":
-							case "translation":
+							case "translate",
+							"translation":
 								if (yUp) {
 									channel.type = ["x", "y", "z"];
 									for (param in channel.param) {
@@ -993,7 +996,6 @@ class Collada extends AbstractParser
 		var name:String = id.split("/")[0];
 		var type:String = id.split("/")[1];
 		var sampler:XML = node._("sampler")[0];
-		
 		if (type == null) {
 			Debug.trace(" ! No animation type detected");
 			return;

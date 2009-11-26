@@ -57,8 +57,8 @@ class Clipping extends EventDispatcher
 	/** @private */
 	/*arcane*/ private function collectFaces(mesh:Mesh, faces:Vector<Face>):Void
 	{
-		_faces = mesh.arcane()._faces;
-		_screenVertices = mesh.arcane()._screenVertices;
+		_faces = mesh.arcaneNS()._faces;
+		_screenVertices = mesh.arcaneNS()._screenVertices;
 		
 		var i:Int = -1;
 		for (_face in _faces)
@@ -232,6 +232,7 @@ class Clipping extends EventDispatcher
 	private var _indexZ:Int;
 	private var _screenVerticesCull:Vector<Int>;
 	private var _cullCount:Int;
+	private var _cullTotal:Int;
 	private var _minX:Float;
 	private var _minY:Float;
 	private var _minZ:Float;
@@ -405,14 +406,7 @@ class Clipping extends EventDispatcher
 		_globalPointTL = new Point(0, 0);
 		_globalPointBR = new Point(0, 0);
 		_screenVerticesCull = new Vector<Int>();
-		
-		_minX = -100000;
-		_minY = -100000;
-		_minZ = -100000;
-		_maxX = 100000;
-		_maxY = 100000;
-		_maxZ = 100000;
-		
+	
 		_minX = minX;
 		_maxX = maxX;
 		_minY = minY;

@@ -1,6 +1,5 @@
 ﻿/**
  * Wrapper class for haXe compatibility with E4X features.
- * @author waneck
  */
 
 package away3dlite.haxeutils.xml;

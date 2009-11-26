@@ -11,11 +11,9 @@ package away3dlite.core.base
 	 */
 	public class Face
 	{
-		private var uvtData:Vector.<Number>;
-		
-		private var vertices:Vector.<Number>;
-		
-		private var screenVertices:Vector.<Number>;
+		private var _uvtData:Vector.<Number>;
+		private var _vertices:Vector.<Number>;
+		private var _screenVertices:Vector.<Number>;
 		
 		/**
 		 * Mesh object to which the face belongs.
@@ -30,7 +28,7 @@ package away3dlite.core.base
 		/**
 		 * Index value of the face.
 		 */
-		public var index:int;
+		public var faceIndex:int;
 		
 		/**
 		 * Index value of the first vertex in the face.
@@ -46,6 +44,11 @@ package away3dlite.core.base
 		 * Index value of the third vertex in the face.
 		 */
 		public var i2:int;
+		
+		/**
+		 * Index value of the fourth vertex in the face.
+		 */
+		public var i3:int;
 		
 		/**
 		 * x index of the first screen vertex.
@@ -76,6 +79,16 @@ package away3dlite.core.base
 		 * y index of the third screen vertex.
 		 */
 		public var y2:int;
+				
+		/**
+		 * x index of the fourth screen vertex.
+		 */
+		public var x3:int;
+				
+		/**
+		 * y index of the fourth screen vertex.
+		 */
+		public var y3:int;
 		
 		/**
 		 * u index of the first mapping value.
@@ -121,32 +134,46 @@ package away3dlite.core.base
 		 * t index of the third mapping value.
 		 */
 		public var t2:int;
+						
+		/**
+		 * u index of the fourth mapping value.
+		 */
+		public var u3:int;
+						
+		/**
+		 * v index of the fourth mapping value.
+		 */
+		public var v3:int;
+						
+		/**
+		 * t index of the fourth mapping value.
+		 */
+		public var t3:int;
 		
-		/*
-		public var normalX:Number;
 		
-		public var normalY:Number;
-		
-		public var normalZ:Number;
-		*/
-		
-		public function Face(mesh:Mesh, i:int)
+		/**
+		 * Creates a new <code>Face</code> object.
+		 * 
+		 * @param mesh			The <code>Mesh</code> object to which the face belongs.
+		 * @param faceIndex		The index of the face.
+		 * @param index			The start index of the indices.
+		 * @param length		The number of indices.
+		 */
+		public function Face(mesh:Mesh, faceIndex:int, index:int, length:int)
 		{
 			this.mesh = mesh;
 			
-			index = i;
+			this.faceIndex = faceIndex;
 			
-			uvtData = mesh._uvtData;
+			_uvtData = mesh._uvtData;
 			
-			vertices = mesh._vertices;
+			_vertices = mesh._vertices;
 			
-			screenVertices = mesh._screenVertices;
+			_screenVertices = mesh._screenVertices;
 			
-			material = mesh._faceMaterials[i] || mesh.material;
-			
-			i0 = mesh._indices[int(i*3 + 0)];
-			i1 = mesh._indices[int(i*3 + 1)];
-			i2 = mesh._indices[int(i*3 + 2)];
+			i0 = mesh._indices[int(index)];
+			i1 = mesh._indices[int(index + 1)];
+			i2 = mesh._indices[int(index + 2)];
 			
 			x0 = 2*i0;
 			y0 = 2*i0 + 1;
@@ -169,6 +196,14 @@ package away3dlite.core.base
 			v2 = 3*i2 + 1;
 			t2 = 3*i2 + 2;
 			
+			if (length > 3) {
+				i3 = mesh._indices[int(index + 3)];
+				x3 = 2*i3;
+				y3 = 2*i3 + 1;
+				u3 = 3*i3;
+				v3 = 3*i3 + 1;
+				t3 = 3*i3 + 2;
+			}
 			/*
 			var d1x:Number = vertices[u1] - vertices[u0];
 	        var d1y:Number = vertices[v1] - vertices[v0];
@@ -200,7 +235,7 @@ package away3dlite.core.base
 		 */
 		public function calculateAverageZ():int
 		{
-			return int((uvtData[t0] + uvtData[t1] + uvtData[t2])*1000000);
+			return i3? int((_uvtData[t0] + _uvtData[t1] + _uvtData[t2] + _uvtData[t3])*750000) : int((_uvtData[t0] + _uvtData[t1] + _uvtData[t2])*1000000);
 		}
 		
 		/**
@@ -208,15 +243,18 @@ package away3dlite.core.base
 		 */
 		public function calculateFurthestZ():int
 		{
-			var z:Number = uvtData[t0];
+			var z:Number = _uvtData[t0];
 			
-			if (z > uvtData[t1])
-				z = uvtData[t1];
+			if (z > _uvtData[t1])
+				z = _uvtData[t1];
 			
-			if (z > uvtData[t2])
-				z = uvtData[t2];
+			if (z > _uvtData[t2])
+				z = _uvtData[t2];
 			
-			return int(z*1000000);
+			if (i3 && z > _uvtData[t3])
+				z = _uvtData[t3];
+			
+			return int(z*3000000);
 		}
 		
 		/**
@@ -224,15 +262,18 @@ package away3dlite.core.base
 		 */
 		public function calculateNearestZ():int
 		{
-			var z:Number = uvtData[t0];
+			var z:Number = _uvtData[t0];
 			
-			if (z < uvtData[t1])
-				z = uvtData[t1];
+			if (z < _uvtData[t1])
+				z = _uvtData[t1];
 			
-			if (z < uvtData[t2])
-				z = uvtData[t2];
+			if (z < _uvtData[t2])
+				z = _uvtData[t2];
 			
-			return int(z*1000000);
+			if (i3 && z < _uvtData[t3])
+				z = _uvtData[t3];
+			
+			return int(z*3000000);
 		}
 		
 		/**
@@ -243,24 +284,74 @@ package away3dlite.core.base
 		 */
 		public function calculateUVT(x:Number, y:Number):Vector3D
 		{
-			var az:Number = uvtData[t0];
-            var bz:Number = uvtData[t1];
-            var cz:Number = uvtData[t2];
+			var v0x:Number = _vertices[x0];
+			var v0y:Number = _vertices[y0];
+			var v2x:Number = _vertices[x2];
+			var v2y:Number = _vertices[y2];
+			
+			var ax:Number;
+			var ay:Number;
+			var az:Number;
+			var au:Number;
+			var av:Number;
+			
+			var bx:Number;
+			var by:Number;
+			var bz:Number;
+			var bu:Number;
+			var bv:Number;
+			
+			var cx:Number;
+			var cy:Number;
+			var cz:Number;
+			var cu:Number;
+			var cv:Number;
+			
+			if (i3 && (v0x*(v2y - y) + x*(v0y - v2y) + v2x*(y - v0y)) < 0) {
+				az = _uvtData[t0];
+	            bz = _uvtData[t2];
+	            cz = _uvtData[t3];
+	            
+				ax = (_screenVertices[x0] - x)/az;
+	            bx = (_screenVertices[x2] - x)/bz;
+	            cx = (_screenVertices[x3] - x)/cz;
+	            ay = (_screenVertices[y0] - y)/az;
+	            by = (_screenVertices[y2] - y)/bz;
+	            cy = (_screenVertices[y3] - y)/cz;
+	            
+	            au = _uvtData[u0];
+	            av = _uvtData[v0];
+	            bu = _uvtData[u2];
+	            bv = _uvtData[v2];
+	            cu = _uvtData[u3];
+	            cv = _uvtData[v3];
+			} else {
+				az = _uvtData[t0];
+	            bz = _uvtData[t1];
+	            cz = _uvtData[t2];
+	            
+				ax = (_screenVertices[x0] - x)/az;
+	            bx = (_screenVertices[x1] - x)/bz;
+	            cx = (_screenVertices[x2] - x)/cz;
+	            ay = (_screenVertices[y0] - y)/az;
+	            by = (_screenVertices[y1] - y)/bz;
+	            cy = (_screenVertices[y2] - y)/cz;
+	            
+	            au = _uvtData[u0];
+	            av = _uvtData[v0];
+	            bu = _uvtData[u1];
+	            bv = _uvtData[v1];
+	            cu = _uvtData[u2];
+	            cv = _uvtData[v2];
+			}
             
-			var ax:Number = (screenVertices[x0] - x)/az;
-            var bx:Number = (screenVertices[x1] - x)/bz;
-            var cx:Number = (screenVertices[x2] - x)/cz;
-            var ay:Number = (screenVertices[y0] - y)/az;
-            var by:Number = (screenVertices[y1] - y)/bz;
-            var cy:Number = (screenVertices[y2] - y)/cz;
-
             var det:Number = ax*(by - cy) + bx*(cy - ay) + cx*(ay - by);
             
-            var da:Number = x*(by - cy) + bx*(cy - y) + cx*(y- by);
-            var db:Number = ax*(y - cy) + x*(cy - ay) + cx*(ay - y);
-            var dc:Number = ax*(by - y) + bx*(y - ay) + x*(ay - by);
-
-            return new Vector3D((da*uvtData[u0] + db*uvtData[u1] + dc*uvtData[u2])/det, (da*uvtData[v0] + db*uvtData[v1] + dc*uvtData[v2])/det, (da/uvtData[t0] + db/uvtData[t1] + dc/uvtData[t2])/det);
+            var ad:Number = x*(by - cy) + bx*(cy - y) + cx*(y- by);
+            var bd:Number = ax*(y - cy) + x*(cy - ay) + cx*(ay - y);
+            var cd:Number = ax*(by - y) + bx*(y - ay) + x*(ay - by);
+			
+            return new Vector3D((ad*au + bd*bu + cd*cu)/det, (ad*av + bd*bv + cd*cv)/det, (ad/az + bd/bz + cd/cz)/det);
 		}
 	}
 }

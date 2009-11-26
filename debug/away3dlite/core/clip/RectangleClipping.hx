@@ -15,12 +15,11 @@ class RectangleClipping extends Clipping
 	/** @private */
 	/*arcane*/ private override function collectFaces(mesh:Mesh, faces:Vector<Face>):Void
 	{
-		_faces = mesh.arcane()._faces;
-		_uvtData = mesh.arcane()._uvtData;
-		_screenVertices = mesh.arcane()._screenVertices;
+		_faces = mesh.arcaneNS()._faces;
+		_uvtData = mesh.arcaneNS()._uvtData;
+		_screenVertices = mesh.arcaneNS()._screenVertices;
 		
-		_screenVerticesCull.fixed = false;
-		_screenVerticesCull.length = 0;
+		_screenVerticesCull = new Vector<Int>();
 		_index = _screenVerticesCull.length = Std.int( _screenVertices.length/2 );
 		_screenVerticesCull.fixed = true;
 		
@@ -46,9 +45,19 @@ class RectangleClipping extends Clipping
 		
 		for (_face in _faces) {
 			if (mesh.bothsides || _screenVertices[_face.x0]*(_screenVertices[_face.y2] - _screenVertices[_face.y1]) + _screenVertices[_face.x1]*(_screenVertices[_face.y0] - _screenVertices[_face.y2]) + _screenVertices[_face.x2]*(_screenVertices[_face.y1] - _screenVertices[_face.y0]) > 0) {
-				_cullCount = _screenVerticesCull[_face.i0] + _screenVerticesCull[_face.i1] + _screenVerticesCull[_face.i2];
+				/*
+				if (_face.i3 != 0)
+				{
+					_cullTotal = 4;
+					_cullCount = _screenVerticesCull[_face.i0] + _screenVerticesCull[_face.i1] + _screenVerticesCull[_face.i2] + _screenVerticesCull[_face.i3];
+				} else {
+					_cullTotal = 3;*/
+					_cullCount = _screenVerticesCull[_face.i0] + _screenVerticesCull[_face.i1] + _screenVerticesCull[_face.i2];
+				//}
 				//HAXE_WARNING
 				//WARNING
+				//last revision not working properly
+       			//if ((_cullCount >> 16 == 0) && (_cullCount >> 12 & 15) < _cullTotal && (_cullCount >> 8 & 15) < _cullTotal && (_cullCount >> 4 & 15) < _cullTotal && (_cullCount & 15) < _cullTotal)
 				if ((_cullCount >> 8 == 0) && (_cullCount >> 6 & 3 ) < 3 && (_cullCount >> 4 & 3) < 3 && (_cullCount >> 2 & 3) < 3 && (_cullCount & 3) < 3)
 					faces[faces.length] = _face;
 			}

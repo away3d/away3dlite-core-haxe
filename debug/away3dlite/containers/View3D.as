@@ -1,5 +1,4 @@
-package away3dlite.containers
-{
+package away3dlite.containers {
 	import away3dlite.arcane;
 	import away3dlite.cameras.*;
 	import away3dlite.core.base.*;
@@ -11,6 +10,8 @@ package away3dlite.containers
 	import flash.display.*;
 	import flash.events.*;
 	import flash.geom.*;
+	import flash.net.*;
+	import flash.ui.*;
 	
 	use namespace arcane;
 	
@@ -40,6 +41,14 @@ package away3dlite.containers
         	return _screenClipping;
         }
         
+        private const VERSION:String = "1";
+        private const REVISION:String = "0.2";
+        private const APPLICATION_NAME:String = "Away3D.com";
+        
+        private var _customContextMenu:ContextMenu;
+        private var _menu0:ContextMenuItem;
+        private var _menu1:ContextMenuItem;
+        private var _sourceURL:String;
 		private var _renderer:Renderer;
 		private var _camera:Camera3D;
 		private var _scene:Scene3D;
@@ -74,6 +83,33 @@ package away3dlite.containers
 		{
 			
 		}
+		
+		private function onViewSource(e:ContextMenuEvent):void 
+		{
+			var request:URLRequest = new URLRequest(_sourceURL);
+			try {
+				navigateToURL(request, "_blank");
+			} catch (error:Error) {
+				
+			}
+		}
+		
+        private function onVisitWebsite(event:ContextMenuEvent):void
+        {
+			var url:String = "http://www.away3d.com";
+            var request:URLRequest = new URLRequest(url);
+            try {
+                navigateToURL(request);
+            } catch (error:Error) {
+                
+            }
+        }
+        
+        private function updateContextMenu():void
+        {
+        	_customContextMenu.customItems = _sourceURL? [_menu0, _menu1] : [_menu1];
+        	contextMenu = _customContextMenu;
+        }
         
 		private function updateScreenClipping():void
 		{
@@ -168,7 +204,7 @@ package away3dlite.containers
         
         private function fireMouseEvent(type:String, ctrlKey:Boolean = false, shiftKey:Boolean = false):void
         {
-        	if (!mouseEnabled)
+        	if (!mouseEnabled3D)
         		return;
         	
         	_face = renderer.getFaceUnderPoint(mouseX, mouseY);
@@ -279,6 +315,13 @@ package away3dlite.containers
          * Forces mousemove events to fire even when cursor is static.
          */
         public var mouseZeroMove:Boolean;
+		
+        /**
+         * Specifies whether the view receives 3d mouse events.
+         * 
+         * @see away3dlite.events.MouseEvent3D
+         */
+        public var mouseEnabled3D:Boolean = true;
         
 		/**
 		 * Scene used when rendering.
@@ -450,12 +493,34 @@ package away3dlite.containers
             addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
             addEventListener(MouseEvent.ROLL_OUT, onRollOut);
             addEventListener(MouseEvent.ROLL_OVER, onRollOver);
+            
+            //setup context menu
+			_customContextMenu = new ContextMenu();
+			_customContextMenu.hideBuiltInItems();
+            _menu0 = new ContextMenuItem("View Source", true, true, true); 
+			_menu0.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, onViewSource);
+            _menu1 = new ContextMenuItem(APPLICATION_NAME + "\tv" + VERSION + "." + REVISION, true, true, true);
+            _menu1.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, onVisitWebsite);
+            updateContextMenu();
 		}
         
+		/**
+		 * Defines a source url string that can be accessed though a View Source option in the right-click menu.
+		 * 
+		 * Requires the stats panel to be enabled.
+		 * 
+		 * @param	url		The url to the source files.
+		 */
+		public function addSourceURL(url:String):void
+		{
+			_sourceURL = url;
+			updateContextMenu();
+		}
+		
         /**
          * Renders a snapshot of the view.
-         ú/
-ÿ	public function render():void
+         */
+		public function render():void
 		{
 			_totalFaces = 0;
 			_totalObjects = -1;
@@ -464,15 +529,15 @@ package away3dlite.containers
 			
 			updateScreenClipping();
 			
-			camera.update();
+			_camera.update();
 			
-			_scene.project(camera.projectionMatrix3D);
+			_scene.project(camera);
 			
 			graphics.clear();
 			
 			renderer.render();
 			
-			if (mouseEnabled)
+			if (mouseEnabled3D)
 				fireMouseMoveEvent();
 		}
 	}

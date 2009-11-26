@@ -84,10 +84,17 @@ class Cone extends AbstractPrimitive
 				var c:Int = (_segmentsW + 1)*(j - 1) + i - 1;
 				var d:Int = (_segmentsW + 1)*(j - 1) + i;
 				
-				if (j < _segmentsH)
-					_indices.xyzpush(a,b,c);
-				if (j > jMin)
-					_indices.xyzpush(a,c,d);
+				if (j == _segmentsH) {
+					_indices.xyzpush(a, c, d);
+					_faceLengths.push(3);
+				} else if (j == jMin) {
+					_indices.xyzpush(a, b, c);
+					_faceLengths.push(3);
+				} else {
+					_indices.xyzpush(a, b, c);
+					_indices.push(d);
+					_faceLengths.push(4);
+				}
 			}
 		}
 		
@@ -255,7 +262,7 @@ class Cone extends AbstractPrimitive
 		var cone:Cone = (object != null) ? (object.downcast(Cone)) : new Cone();
 		super.clone(cone);
 		cone.radius = _radius;
-		cone.height = __height;
+		cone._height = __height;
 		cone.segmentsW = _segmentsW;
 		cone.segmentsH = _segmentsH;
 		cone.openEnded = _openEnded;

@@ -1,6 +1,5 @@
-//OK
-
 package away3dlite.containers;
+
 import away3dlite.cameras.Camera3D;
 import away3dlite.core.base.Face;
 import away3dlite.core.base.Object3D;
@@ -13,12 +12,16 @@ import away3dlite.events.MouseEvent3D;
 import away3dlite.materials.Material;
 import flash.display.Sprite;
 import flash.Error;
+import flash.events.ContextMenuEvent;
 import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.geom.Point;
 import flash.geom.Vector3D;
 import flash.display.StageScaleMode;
 import flash.Lib;
+import flash.net.URLRequest;
+import flash.ui.ContextMenu;
+import flash.ui.ContextMenuItem;
 
 //use namespace arcane;
 using away3dlite.namespace.Arcane;
@@ -44,12 +47,20 @@ class View3D extends Sprite
 			updateScreenClipping();
 			_screenClippingDirty = false;
 			
-			return _screenClipping = _clipping.arcane().screen(this, _loaderWidth, _loaderHeight);
+			return _screenClipping = _clipping.arcaneNS().screen(this, _loaderWidth, _loaderHeight);
 		}
 		
 		return _screenClipping;
 	}
 	
+	private static inline var VERSION:String = "1";
+	private static inline var REVISION:String = "0.2";
+	private static inline var APPLICATION_NAME:String = "Away3D.com";
+	
+	private var _customContextMenu:ContextMenu;
+	private var _menu0:ContextMenuItem;
+	private var _menu1:ContextMenuItem;
+	private var _sourceURL:String;
 	private var _renderer:Renderer;
 	private var _camera:Camera3D;
 	private var _scene:Scene3D;
@@ -83,6 +94,33 @@ class View3D extends Sprite
 	private function onScreenUpdated(e:ClippingEvent):Void
 	{
 		
+	}
+		
+	private function onViewSource(e:ContextMenuEvent):Void 
+	{
+		var request:URLRequest = new URLRequest(_sourceURL);
+		try {
+			Lib.getURL(request, "_blank");
+		} catch (error:Error) {
+			
+		}
+	}
+	
+	private function onVisitWebsite(event:ContextMenuEvent):Void
+	{
+		var url:String = "http://www.away3d.com";
+		var request:URLRequest = new URLRequest(url);
+		try {
+			Lib.getURL(request);
+		} catch (error:Error) {
+			
+		}
+	}
+	
+	private function updateContextMenu():Void
+	{
+		_customContextMenu.customItems = ( _sourceURL != null ) ? [_menu0, _menu1] : [_menu1];
+		contextMenu = _customContextMenu;
 	}
 	
 	private function updateScreenClipping():Void
@@ -180,7 +218,7 @@ class View3D extends Sprite
 	
 	private function fireMouseEvent(type:String, ?ctrlKey:Bool = false, ?shiftKey:Bool = false):Void
 	{
-		if (!mouseEnabled)
+		if (!mouseEnabled3D)
 			return;
 		
 		_face = renderer.getFaceUnderPoint(mouseX, mouseY);
@@ -291,7 +329,14 @@ class View3D extends Sprite
 	 * Forces mousemove events to fire even when cursor is static.
 	 */
 	public var mouseZeroMove:Bool;
-	
+		
+	/**
+	 * Specifies whether the view receives 3d mouse events.
+	 * 
+	 * @see away3dlite.events.MouseEvent3D
+	 */
+	public var mouseEnabled3D:Bool;
+		
 	/**
 	 * Scene used when rendering.
 	 * 
@@ -338,14 +383,14 @@ class View3D extends Sprite
 			
 		if (_camera != null) {
 			removeChild(_camera);
-			_camera.arcane()._view = null;
+			_camera.arcaneNS()._view = null;
 		}
 		
 		_camera = val;
 		
 		if (_camera != null) {
 			addChild(_camera);
-			_camera.arcane()._view = this;
+			_camera.arcaneNS()._view = this;
 		}
 		return val;
 	}
@@ -367,7 +412,7 @@ class View3D extends Sprite
 			return val;
 		
 		_renderer = val;
-		_renderer.arcane().setView(this);
+		_renderer.arcaneNS().setView(this);
 		return val;
 	}
 	
@@ -393,7 +438,7 @@ class View3D extends Sprite
 		}
 		
 		_clipping = val;
-		_clipping.arcane().setView(this);
+		_clipping.arcaneNS().setView(this);
 		
 		if (_clipping != null) {
 			_clipping.addEventListener(ClippingEvent.CLIPPING_UPDATED, onClippingUpdated);
@@ -464,6 +509,7 @@ class View3D extends Sprite
 		super();
 		
 		_viewZero = new Point();
+		mouseEnabled3D = true;
 		
 		this.scene = (scene != null) ? scene : new Scene3D();
 		this.camera = (camera != null) ? camera : new Camera3D();
@@ -476,6 +522,28 @@ class View3D extends Sprite
 		addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 		addEventListener(MouseEvent.ROLL_OUT, onRollOut);
 		addEventListener(MouseEvent.ROLL_OVER, onRollOver);
+		
+		//setup context menu
+		_customContextMenu = new ContextMenu();
+		_customContextMenu.hideBuiltInItems();
+		_menu0 = new ContextMenuItem("View Source", true, true, true); 
+		_menu0.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, onViewSource);
+		_menu1 = new ContextMenuItem(APPLICATION_NAME + "\tv" + VERSION + "." + REVISION, true, true, true);
+		_menu1.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, onVisitWebsite);
+		updateContextMenu();
+	}
+	
+	/**
+	 * Defines a source url string that can be accessed though a View Source option in the right-click menu.
+	 * 
+	 * Requires the stats panel to be enabled.
+	 * 
+	 * @param	url		The url to the source files.
+	 */
+	public function addSourceURL(url:String):Void
+	{
+		_sourceURL = url;
+		updateContextMenu();
 	}
 	
 	/**
@@ -490,15 +558,15 @@ class View3D extends Sprite
 		
 		updateScreenClipping();
 		
-		camera.arcane().update();
+		_camera.arcaneNS().update();
 		
-		_scene.arcane().project(camera.projectionMatrix3D);
+		_scene.arcaneNS().project(camera);
 		
 		graphics.clear();
 		
 		renderer.render();
 		
-		if (mouseEnabled)
+		if (mouseEnabled3D)
 			fireMouseMoveEvent();
 	}
 }

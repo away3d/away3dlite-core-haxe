@@ -11,7 +11,7 @@ package away3dlite.loaders.data
 	/**
 	 * Data class for the material data of a face.
 	 * 
-	 * @see away3d.loaders.data.FaceData
+	 * @see away3dlite.loaders.data.FaceData
 	 */
 	public class MaterialData
 	{
@@ -101,8 +101,10 @@ package away3dlite.loaders.data
             
             var face:Face;
             
-            for each (face in faces)
-            	face.material = face.mesh._faceMaterials[face.index] = _material || face.mesh.material;
+            for each (face in faces) {
+            	face.mesh._faceMaterials[face.faceIndex] = _material;
+            	face.mesh._materialsDirty = true;
+			}
         }
         		
 		/**

@@ -154,6 +154,9 @@
 				
 				//set indices
 				mesh._indices.push(i++, i++, i++);
+				
+				//set facelengths
+				mesh._faceLengths.push(3);
 			}
 			
 			//store mesh material reference for later setting by the materialLibrary
@@ -164,7 +167,7 @@
 			
 			//store element material reference for later setting by the materialLibrary
 			for each (_face in mesh._faces)
-				if ((_materialData = _geometryData.faces[_face.index].materialData))
+				if ((_materialData = _geometryData.faces[_face.faceIndex].materialData))
 					_materialData.faces.push(_face);
 					
 			if (centerMeshes) {
@@ -632,7 +635,7 @@
                         	if (yUp)
 				                _transform.prependScale(arrayChild[0], arrayChild[1], arrayChild[2]);
 				            else
-				           #  ÿ _transform.prependScale(arrayChild[0], arrayChild[2], arrayChild[1]);
+				                _transform.prependScale(arrayChild[0], arrayChild[2], arrayChild[1]);
                         }
 						
                         break;

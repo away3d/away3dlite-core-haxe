@@ -49,10 +49,17 @@
                     var c:int = (_segmentsW + 1)*(j - 1) + i - 1;
                     var d:int = (_segmentsW + 1)*(j - 1) + i;
                     
-                    if (j < _segmentsH)
-                    	_indices.push(a,b,c);
-                    if (j > 1)
+                    if (j == _segmentsH) {
 						_indices.push(a,c,d);
+                    	_faceLengths.push(3);
+                    } else if (j == 1) {
+                    	_indices.push(a,b,c);
+						_faceLengths.push(3);
+                    } else {
+                    	_indices.push(a,b,c,d);
+						_faceLengths.push(4);
+					}
+						
                 }
             }
     	}
