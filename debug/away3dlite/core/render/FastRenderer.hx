@@ -25,7 +25,6 @@ class FastRenderer extends Renderer
 	
 	private function collectFaces(object:Object3D):Void
 	{
-		Lib.trace(Std.is(object, Object3D));
 		_mouseEnabledArray.push(_mouseEnabled);
 		_mouseEnabled = object.arcaneNS()._mouseEnabled = (_mouseEnabled && object.mouseEnabled);
 		
@@ -185,30 +184,8 @@ class FastRenderer extends Renderer
 	 */
 	public override function render():Void
 	{
-		Lib.trace("new ok");
 		super.render();
 		
 		collectFaces(_scene);
 	}
-	
-	/*
-	private function quicksort( lo : Int, hi : Int ) : Void {
-			var i = lo;
-			var j = hi;
-			var tbuf = children;
-			Lib.trace(lo + " H " + hi);
-			var p = untyped tbuf[(lo+hi)>>1]._screenZ;
-			while( i <= j ) {
-					while (i < hi && untyped tbuf[i]._screenZ > p ) i++;
-					while (i > lo && untyped tbuf[j]._screenZ < p ) j--;
-					if( i <= j ) {
-							var t = tbuf[i];
-							tbuf[i++] = tbuf[j];
-							tbuf[j--] = t;
-					}
-			}
-			if( lo < j ) quicksort( lo, j );
-			if( i < hi ) quicksort( i, hi );
-	}*/
-
 }

@@ -9,7 +9,7 @@ import flash.Lib;
  * 
  * @see away3dlite.animators.BonesAnimator
  */
-class Channel
+ class Channel
 {
 	private var i:Int;
 	private var _index:Int;
@@ -46,12 +46,9 @@ class Channel
 		
 		interpolations = [];
 		
-		#if !as3_original
 		setFields = new Hash<Dynamic>();
-		#end
 	}
 	
-	#if !as3_original
 	private function updateFields()
 	{
 		i = type.length;
@@ -59,11 +56,10 @@ class Channel
 		while (--i >= lastLen)
 		{
 			if (Reflect.hasField(target, "set_" + type[i]))
-				setFields.set(type[i] +"$" + i, Reflect.field(target, "set_" + type[i]));
+				setFields.set(type[i], Reflect.field(target, "set_" + type[i]));
 		}
 		lastLen = type.length;
 	}
-	#end
 	
 	/**
 	 * Updates the channel's target with the data point at the given time in seconds.
@@ -76,41 +72,27 @@ class Channel
 		if (target == null)
 			return;
 		
-		#if !as3_original
 		if (lastLen != type.length)
 			updateFields();
-		#end
 		i = type.length;
 		
 		if (time < times[0]) {
 			while (i-- != 0)
 			{
-				//HAXE_MODIFYIED
-				//MUST_OPTIMIZE
-				#if !as3_original
-				var setField = setFields.get(type[i]+"$" + i);
+				var setField = setFields.get(type[i]);
 				if (setField != null)
 					setField(param[0][i]);
 				else
 					Reflect.setField(target, type[i], param[0][i]);
-				#else
-					Reflect.setField(target, type[i], param[0][i]);
-				#end
 			}
 		} else if (time > times[Std.int(times.length - 1)]) {
 			while (i-- != 0)
 			{
-				//HAXE_MODIFYIED
-				//MUST_OPTIMIZE
-				#if !as3_original
-				var setField = setFields.get(type[i] +"$" + i);
+				var setField = setFields.get(type[i]);
 				if (setField != null)
 					setField(param[Std.int(times.length - 1)][i]);
 				else
 					Reflect.setField(target, type[i], param[Std.int(times.length - 1)][i]);
-				#else
-				Reflect.setField(target, type[i], param[Std.int(times.length - 1)][i]);
-				#end
 			}
 		} else {
 			_index = _length = _oldlength = times.length - 1;
@@ -137,26 +119,18 @@ class Channel
 					if (interpolate)
 					{
 						var setValue = ((time - times[_index]) * param[Std.int(_index + 1)][i] + (times[Std.int(_index + 1)] - time) * param[_index][i]) / (times[Std.int(_index + 1)] - times[_index]);
-						#if !as3_original
-						var setField = setFields.get(type[i] +"$" + i);
+						var setField = setFields.get(type[i]);
 						if (setField != null)
 							setField(setValue);
 						else
 							Reflect.setField(target, type[i], setValue);
-						#else
-						Reflect.setField(target, type[i], setValue);
-						#end
 					} else {
 						var setValue = param[_index][i];
-						#if !as3_original
-						var setField = setFields.get(type[i] +"$" + i);
+						var setField = setFields.get(type[i]);
 						if (setField != null)
 							setField(setValue);
 						else
 							Reflect.setField(target, type[i], setValue);
-						#else
-						Reflect.setField(target, type[i], setValue);
-						#end
 					}
 				}
 			}

@@ -276,7 +276,7 @@ class Face
 		if (i3 != 0 && z < _uvtData[t3])
 			z = _uvtData[t3];
 
-		return Std.int(z * 10003000000000);
+		return Std.int(z * 3000000);
 	}
 	
 	/**

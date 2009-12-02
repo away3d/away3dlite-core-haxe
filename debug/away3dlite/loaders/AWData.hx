@@ -39,14 +39,14 @@ class AWData extends AbstractParser
 		if(lines.length == 1) lines = awdData.split(String.fromCharCode(13));
 		var trunk:Array<Dynamic>;
 		var state:String = "";
-		var isMesh:Bool;
-		var isMaterial:Bool;
+		var isMesh:Bool = false;
+		var isMaterial:Bool = false;
 		var id:Int = 0;
 		var buffer:Int=0;
-		var oData:OData;
-		var dline:Array<String>;
-		var m:Matrix3D;
-		var cont:ObjectContainer3D;
+		var oData:OData = null;
+		var dline:Array<String> = null;
+		var m:Matrix3D = null;
+		var cont:ObjectContainer3D = null;
 		var i:UInt;
 		var version:String = "";
 		
@@ -89,14 +89,14 @@ class AWData extends AbstractParser
 					
 					if(buffer == 0){
 							id = Std.parseInt(dline[0]);
-							var temparr:Vector<Float> = Lib.vectorOfArray([Std.parseFloat(dline[1]),Std.parseFloat(dline[5]),Std.parseFloat(dline[9]),Std.parseFloat(dline[2]),Std.parseFloat(dline[6]),Std.parseFloat(dline[10]),Std.parseFloat(dline[3]),Std.parseFloat(dline[7]),Std.parseFloat(dline[11]),Std.parseFloat(dline[4]),Std.parseFloat(dline[8]),Std.parseFloat(dline[12]),0,0,0,1]);
-							m = new Matrix3D(temparr);
+							//var temparr:Vector<Float> = Lib.vectorOfArray([FastStd.parseFloat(dline[1]),FastStd.parseFloat(dline[5]),FastStd.parseFloat(dline[9]),FastStd.parseFloat(dline[2]),FastStd.parseFloat(dline[6]),FastStd.parseFloat(dline[10]),FastStd.parseFloat(dline[3]),FastStd.parseFloat(dline[7]),FastStd.parseFloat(dline[11]),FastStd.parseFloat(dline[4]),FastStd.parseFloat(dline[8]),FastStd.parseFloat(dline[12]),0,0,0,1]);
+							m = new Matrix3D(Lib.vectorOfArray([FastStd.parseFloat(dline[1]),FastStd.parseFloat(dline[2]),FastStd.parseFloat(dline[3]),FastStd.parseFloat(dline[4]),FastStd.parseFloat(dline[5]),FastStd.parseFloat(dline[6]),FastStd.parseFloat(dline[7]),FastStd.parseFloat(dline[8]),FastStd.parseFloat(dline[9]),FastStd.parseFloat(dline[10]),FastStd.parseFloat(dline[11]),FastStd.parseFloat(dline[12]),0,0,0,1]));
 							++buffer;
 					} else {
-							m.position = new Vector3D(Std.parseFloat(dline[9]),Std.parseFloat(dline[10]),Std.parseFloat(dline[11]));
+							m.position = new Vector3D(FastStd.parseFloat(dline[9]),FastStd.parseFloat(dline[10]),FastStd.parseFloat(dline[11]));
 							oData = {name:(dline[0] == "")? "m_"+id: dline[0] ,
 										transform:m,
-										container:Std.parseInt(dline[4]),
+										container:FastStd.parseInt(dline[4]),
 										bothsides:(dline[5] == "true"),
 										sortType: (dline[7] == "false" && dline[8] == "false") ? SortType.CENTER : ( (dline[7] == "true") ? SortType.FRONT : SortType.BACK),
 										material: (isMaterial && dline[12] != null && dline[12] != "") ? ( resolvedP + ( (customPath != "") ? dline[12].substring(7, dline[12].length) : dline[12]) ) : null,
@@ -134,9 +134,10 @@ class AWData extends AbstractParser
 						
 				if(state == "#c" && !isMesh){
 					 
-					id = Std.parseInt(dline[0]);
+					id = FastStd.parseInt(dline[0]);
 					cont = new ObjectContainer3D();
-					m = new Matrix3D(Lib.vectorOfArray([Std.parseFloat(dline[1]),Std.parseFloat(dline[5]),Std.parseFloat(dline[9]),Std.parseFloat(dline[2]),Std.parseFloat(dline[6]),Std.parseFloat(dline[10]),Std.parseFloat(dline[3]),Std.parseFloat(dline[7]),Std.parseFloat(dline[11]),Std.parseFloat(dline[4]),Std.parseFloat(dline[8]),Std.parseFloat(dline[12]),0.0,0.0,0.0,1.0]));
+					//m = new Matrix3D(Lib.vectorOfArray([FastStd.parseFloat(dline[1]),FastStd.parseFloat(dline[5]),FastStd.parseFloat(dline[9]),FastStd.parseFloat(dline[2]),FastStd.parseFloat(dline[6]),FastStd.parseFloat(dline[10]),FastStd.parseFloat(dline[3]),FastStd.parseFloat(dline[7]),FastStd.parseFloat(dline[11]),FastStd.parseFloat(dline[4]),FastStd.parseFloat(dline[8]),FastStd.parseFloat(dline[12]),0.0,0.0,0.0,1.0]));
+					m = new Matrix3D(Lib.vectorOfArray([FastStd.parseFloat(dline[1]),FastStd.parseFloat(dline[2]),FastStd.parseFloat(dline[3]),FastStd.parseFloat(dline[4]),FastStd.parseFloat(dline[5]),FastStd.parseFloat(dline[6]),FastStd.parseFloat(dline[7]),FastStd.parseFloat(dline[8]),FastStd.parseFloat(dline[9]),FastStd.parseFloat(dline[10]),FastStd.parseFloat(dline[11]),FastStd.parseFloat(dline[12]),0.0,0.0,0.0,1.0]));
 					cont.transform.matrix3D = m;
 					cont.name = (dline[13] == "null" || dline[13] == null)? "cont_"+id: dline[13];
 					 
@@ -149,7 +150,7 @@ class AWData extends AbstractParser
 		}
 		 
 		var ref:OData;
-		var mesh:Mesh;
+		var mesh:Mesh = null;
 		var j:Int;
 		var av:Array<String>;
 		var au:Array<String>;
@@ -185,7 +186,8 @@ class AWData extends AbstractParser
 					av = ref.geo.aV[FastStd.parseIntRadix(aRef[j+2],16)].split("/");
 					mesh.arcaneNS()._vertices.xyzpush(FastStd.parseFloat(av[0]), -(FastStd.parseFloat(av[1])), FastStd.parseFloat(av[2]));
 
-					mesh.arcaneNS()._indices.xyzpush(index, index+1, index+2);
+					mesh.arcaneNS()._indices.xyzpush(index, index + 1, index + 2);
+					mesh.arcaneNS()._faceLengths.push(3);
 					index+=3;
 
 					au = ref.geo.aU[FastStd.parseIntRadix(aRef[j+3],16)].split("/");
