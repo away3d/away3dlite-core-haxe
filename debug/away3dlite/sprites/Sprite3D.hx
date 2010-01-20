@@ -1,5 +1,6 @@
 ﻿package away3dlite.sprites;
 
+import away3dlite.haxeutils.FastStd;
 import away3dlite.materials.BitmapMaterial;
 import away3dlite.materials.Material;
 import away3dlite.materials.WireColorMaterial;
@@ -39,10 +40,10 @@ class Sprite3D
 		
 		_vertices.fixed = false;
 		_vertices.length = 0;
-		_vertices.xyzpush(-_width*_scale/2, -_height*_scale/2, 0);
-		_vertices.xyzpush(-_width*_scale/2, _height*_scale/2, 0);
-		_vertices.xyzpush(_width*_scale/2, _height*_scale/2, 0);
-		_vertices.xyzpush(_width*_scale/2, -_height*_scale/2, 0);
+		_vertices.push3(-_width*_scale/2, -_height*_scale/2, 0);
+		_vertices.push3(-_width*_scale/2, _height*_scale/2, 0);
+		_vertices.push3(_width*_scale/2, _height*_scale/2, 0);
+		_vertices.push3(_width*_scale/2, -_height*_scale/2, 0);
 		_vertices.fixed = true;
 	}
 
@@ -160,7 +161,7 @@ class Sprite3D
 		
 		_material = val;
 		
-		if (Std.is(_material, BitmapMaterial)) {
+		if (FastStd.is(_material, BitmapMaterial)) {
 			var bitmapMaterial:BitmapMaterial = Lib.as(_material, BitmapMaterial);
 			
 			if (Math.isNaN(_width))
@@ -204,14 +205,14 @@ class Sprite3D
 		this.alignmentType = AlignmentType.VIEWPLANE;
 		
 		//create indices for sprite
-		indices.xyzpush(0, 1, 2);
+		indices.push3(0, 1, 2);
 		indices.push(3);
 		
 		//create uvtData for sprite
-		uvtData.xyzpush(0, 0, 0);
-		uvtData.xyzpush(0, 1, 0);
-		uvtData.xyzpush(1, 1, 0);
-		uvtData.xyzpush(1, 0, 0);
+		uvtData.push3(0, 0, 0);
+		uvtData.push3(0, 1, 0);
+		uvtData.push3(1, 1, 0);
+		uvtData.push3(1, 0, 0);
 		
 		//create faces
 		updateVertices();

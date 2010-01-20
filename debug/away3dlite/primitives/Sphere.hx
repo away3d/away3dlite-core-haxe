@@ -42,9 +42,9 @@ class Sphere extends AbstractPrimitive
 				var x:Float = ringradius*Math.cos(verangle);
 				var y:Float = ringradius*Math.sin(verangle);
 				
-				_yUp ? _vertices.xyzpush(x, -z, y) : _vertices.xyzpush(x, y, z);
+				_yUp ? _vertices.push3(x, -z, y) : _vertices.push3(x, y, z);
 				
-				_uvtData.xyzpush(i/_segmentsW, 1 - j/_segmentsH, 1);
+				_uvtData.push3(i/_segmentsW, 1 - j/_segmentsH, 1);
 			}
 		}
 		j = 0;
@@ -58,10 +58,10 @@ class Sphere extends AbstractPrimitive
 				
 				if (j == _segmentsH)
 				{
-					_indices.xyzpush(a, c, d);
+					_indices.push3(a, c, d);
 					_faceLengths.push(3);
 				} else if (j == 1) {
-					_indices.xyzpush(a, b, c);
+					_indices.push3(a, b, c);
 					_faceLengths.push(3);
 				} else {
 					_indices.push4(a, b, c, d);

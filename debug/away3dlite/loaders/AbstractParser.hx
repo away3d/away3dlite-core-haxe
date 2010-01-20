@@ -2,6 +2,7 @@ package away3dlite.loaders;
 import away3dlite.core.base.Object3D;
 import away3dlite.core.utils.Cast;
 import away3dlite.events.ParserEvent;
+import away3dlite.haxeutils.FastStd;
 import away3dlite.loaders.data.MaterialData;
 import away3dlite.loaders.utils.GeometryLibrary;
 import away3dlite.loaders.utils.MaterialLibrary;
@@ -177,13 +178,13 @@ class AbstractParser extends EventDispatcher
 			_materialData.material = Cast.material(Reflect.field(_materials,name));
 			
 			//determine material type
-			if (Std.is(_materialData.material, BitmapMaterial))
+			if (FastStd.is(_materialData.material, BitmapMaterial))
 				_materialData.materialType = MaterialData.TEXTURE_MATERIAL;
-			else if (Std.is(_materialData.material, ColorMaterial))
+			else if (FastStd.is(_materialData.material, ColorMaterial))
 				_materialData.materialType = MaterialData.COLOR_MATERIAL;
 			//else if (_materialData.material is ShadingColorMaterial)
 			//	_materialData.materialType = MaterialData.SHADING_MATERIAL;
-			else if (Std.is(_materialData.material, WireframeMaterial))
+			else if (FastStd.is(_materialData.material, WireframeMaterial))
 				_materialData.materialType = MaterialData.WIREFRAME_MATERIAL;
 		}
 	}

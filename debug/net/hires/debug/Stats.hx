@@ -32,6 +32,7 @@
 
 package net.hires.debug;
 
+import away3dlite.haxeutils.FastStd;
 import flash.display.Bitmap;
 import flash.display.BitmapData;
 import flash.display.Sprite;

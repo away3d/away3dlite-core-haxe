@@ -1,4 +1,5 @@
 package away3dlite.loaders.utils;
+import away3dlite.haxeutils.FastStd;
 import flash.events.Event;
 import flash.events.EventDispatcher;
 import flash.events.HTTPStatusEvent;

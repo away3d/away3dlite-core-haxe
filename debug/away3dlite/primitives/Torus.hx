@@ -39,9 +39,9 @@ class Torus extends AbstractPrimitive
 				var y:Float = (_radius + _tube*Math.cos(v))*Math.sin(u);
 				var z:Float = _tube*Math.sin(v);
 				
-				_yUp? _vertices.xyzpush(x, -z, y) : _vertices.xyzpush(x, y, z);
+				_yUp? _vertices.push3(x, -z, y) : _vertices.push3(x, y, z);
 				
-				_uvtData.xyzpush(i/_segmentsT, 1 - j/_segmentsR, 1);
+				_uvtData.push3(i/_segmentsT, 1 - j/_segmentsR, 1);
 			}
 		}
 

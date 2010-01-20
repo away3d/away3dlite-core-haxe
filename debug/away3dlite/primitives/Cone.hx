@@ -39,8 +39,8 @@ class Cone extends AbstractPrimitive
 			i = -1;
 			while (++i < _segmentsW)
 			{
-				_yUp ? _vertices.xyzpush(0, __height, 0) : _vertices.xyzpush(0, 0, -__height);
-				_uvtData.xyzpush(i/_segmentsW, 1, 1);
+				_yUp ? _vertices.push3(0, __height, 0) : _vertices.push3(0, 0, -__height);
+				_uvtData.push3(i/_segmentsW, 1, 1);
 			}
 		} else {
 			jMin = 0;
@@ -59,9 +59,9 @@ class Cone extends AbstractPrimitive
 				var x:Float = ringradius*Math.cos(verangle);
 				var y:Float = ringradius*Math.sin(verangle);
 				
-				_yUp? _vertices.xyzpush(x, -z, y) : _vertices.xyzpush(x, y, z);
+				_yUp? _vertices.push3(x, -z, y) : _vertices.push3(x, y, z);
 				
-				_uvtData.xyzpush(i/_segmentsW, 1 - j/_segmentsH, 1);
+				_uvtData.push3(i/_segmentsW, 1 - j/_segmentsH, 1);
 			}
 			j++;
 		}
@@ -69,8 +69,8 @@ class Cone extends AbstractPrimitive
 		i = -1;
 		while (++i <= _segmentsW)
 		{
-			_yUp? _vertices.xyzpush(0, -__height, 0) : _vertices.xyzpush(0, 0, __height);
-			_uvtData.xyzpush(i/_segmentsW, 0, 1);
+			_yUp? _vertices.push3(0, -__height, 0) : _vertices.push3(0, 0, __height);
+			_uvtData.push3(i/_segmentsW, 0, 1);
 		}
 		
 		j = 0;
@@ -85,13 +85,13 @@ class Cone extends AbstractPrimitive
 				var d:Int = (_segmentsW + 1)*(j - 1) + i;
 				
 				if (j == _segmentsH) {
-					_indices.xyzpush(a, c, d);
+					_indices.push3(a, c, d);
 					_faceLengths.push(3);
 				} else if (j == jMin) {
-					_indices.xyzpush(a, b, c);
+					_indices.push3(a, b, c);
 					_faceLengths.push(3);
 				} else {
-					_indices.xyzpush(a, b, c);
+					_indices.push3(a, b, c);
 					_indices.push(d);
 					_faceLengths.push(4);
 				}

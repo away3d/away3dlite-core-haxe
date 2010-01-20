@@ -1,6 +1,7 @@
 ﻿package away3dlite.materials;
 
 import away3dlite.containers.Scene3D;
+import away3dlite.haxeutils.FastStd;
 import flash.display.BitmapData;
 import flash.display.Sprite;
 import flash.events.Event;

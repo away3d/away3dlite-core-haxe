@@ -3,6 +3,7 @@ package away3dlite.loaders.data;
 import away3dlite.core.base.Face;
 import away3dlite.core.base.Mesh;
 import away3dlite.core.base.Object3D;
+import away3dlite.haxeutils.FastStd;
 import away3dlite.materials.BitmapMaterial;
 import away3dlite.materials.Material;
 import flash.display.BitmapData;
@@ -98,7 +99,7 @@ class MaterialData
 		
 		_material = val;
 
-		if (Std.is(_material, BitmapMaterial))
+		if (FastStd.is(_material, BitmapMaterial))
 			textureBitmap = _material.downcast(BitmapMaterial).bitmap;
 		
 		//var mesh:Mesh;

@@ -407,16 +407,16 @@ class MQO extends AbstractParser
 
 	private function addFace(v0:Vector3D, v1:Vector3D, v2:Vector3D, uv0:Vector3D, uv1:Vector3D, uv2:Vector3D):Void
 	{
-		_geometryData.vertices.xyzpush( -v0.x, -v0.y, v0.z);
-		_geometryData.vertices.xyzpush( -v1.x, -v1.y, v1.z);
-		_geometryData.vertices.xyzpush( -v2.x, -v2.y, v2.z);
-		_geometryData.uvtData.xyzpush(uv0.x, uv0.y, 1);
-		_geometryData.uvtData.xyzpush(uv1.x, uv1.y, 1);
-		_geometryData.uvtData.xyzpush(uv2.x, uv2.y, 1);
+		_geometryData.vertices.push3( -v0.x, -v0.y, v0.z);
+		_geometryData.vertices.push3( -v1.x, -v1.y, v1.z);
+		_geometryData.vertices.push3( -v2.x, -v2.y, v2.z);
+		_geometryData.uvtData.push3(uv0.x, uv0.y, 1);
+		_geometryData.uvtData.push3(uv1.x, uv1.y, 1);
+		_geometryData.uvtData.push3(uv2.x, uv2.y, 1);
 		
 		n += 3;
 		
-		_geometryData.indices.xyzpush(n, n - 1, n - 2);
+		_geometryData.indices.push3(n, n - 1, n - 2);
 		_geometryData.faceLengths.push(3);
 	}
 	

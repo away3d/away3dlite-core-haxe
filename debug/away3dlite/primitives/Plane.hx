@@ -34,8 +34,8 @@ class Plane extends AbstractPrimitive
 			i = -1;
 			while(++i <= _segmentsW)
 			{
-				_yUp? _vertices.xyzpush((i/_segmentsW - 0.5)*__width, 0, (j/_segmentsH - 0.5)*__height) : _vertices.xyzpush((i/_segmentsW - 0.5)*__width, (j/_segmentsH - 0.5)*__height, 0);
-				_uvtData.xyzpush(i/_segmentsW, 1 - j/_segmentsH, 1);
+				_yUp? _vertices.push3((i/_segmentsW - 0.5)*__width, 0, (j/_segmentsH - 0.5)*__height) : _vertices.push3((i/_segmentsW - 0.5)*__width, (j/_segmentsH - 0.5)*__height, 0);
+				_uvtData.push3(i/_segmentsW, 1 - j/_segmentsH, 1);
 			}
 		}
 		

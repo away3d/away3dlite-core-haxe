@@ -1,5 +1,6 @@
 package away3dlite.core.utils;
 
+import away3dlite.haxeutils.FastStd;
 import flash.xml.XML;
 import away3dlite.materials.BitmapMaterial;
 import away3dlite.materials.ColorMaterial;
@@ -20,23 +21,23 @@ class Cast
 {
 	public static function string(data:Dynamic):String
 	{
-		if (Std.is(data, Class))
+		if (FastStd.is(data, Class))
 			data = untyped __new__(data);
 
-		if (Std.is(data, String))
+		if (FastStd.is(data, String))
 			return cast data;
 
-		return Std.string(data);
+		return FastStd.string(data);
 	}
 
 	public static function bytearray(data:Dynamic):ByteArray
 	{
 		//throw new Error(typeof(data));
 
-		if (Std.is(data, Class))
+		if (FastStd.is(data, Class))
 			data = untyped __new__(data);
 
-		if (Std.is(data, ByteArray))
+		if (FastStd.is(data, ByteArray))
 			return cast data;
 
 		return data.downcast(ByteArray);
@@ -44,13 +45,13 @@ class Cast
 
 	public static function xml(data:Dynamic):XML
 	{
-		if (Std.is(data, Class))
+		if (FastStd.is(data, Class))
 			data = untyped __new__(data);
 
-		if (Std.is(data, XML))
+		if (FastStd.is(data, XML))
 			return cast data;
 			
-		if (Std.is(data, XML))
+		if (FastStd.is(data, XML))
 			return new XML(data);
 
 		return new XML(new XML(data));
@@ -73,13 +74,13 @@ class Cast
 
 	public static function color(data:Dynamic):UInt
 	{
-		if (Std.is(data, UInt))
+		if (FastStd.is(data, UInt))
 			return cast data;
 
-		if (Std.is(data, Int))
+		if (FastStd.is(data, Int))
 			return cast data;
 
-		if (Std.is(data, String))
+		if (FastStd.is(data, String))
 		{
 			var datastr : String = cast data;
 			//var datastr = Lib.as(data,String);
@@ -87,7 +88,7 @@ class Cast
 				return Std.int(Math.random()*0x1000000);
 		
 			if ((datastr.length == 6) && hexstring(datastr))
-				return Std.parseInt("0x"+datastr);
+				return FastStd.parseInt("0x"+datastr);
 		}
 
 		return 0xFFFFFF;                                  
@@ -98,10 +99,10 @@ class Cast
 		if (data == null)
 			return null;
 
-		if (Std.is(data, String))
+		if (FastStd.is(data, String))
 			data = tryclass(data);
 
-		if (Std.is(data, Class))
+		if (FastStd.is(data, Class))
 		{
 			try
 			{
@@ -113,10 +114,10 @@ class Cast
 			}
 		}
 
-		if (Std.is(data, BitmapData))
+		if (FastStd.is(data, BitmapData))
 			return cast data;
 		
-		if (Std.is(data, Bitmap))
+		if (FastStd.is(data, Bitmap))
 		{
 			untyped {
 				var dataBit : Bitmap = cast data;
@@ -125,7 +126,7 @@ class Cast
 			}
 		}
 
-		if (Std.is(data, DisplayObject))
+		if (FastStd.is(data, DisplayObject))
 		{
 			var ds:DisplayObject = data.downcast(DisplayObject);
 			var bmd:BitmapData = new BitmapData(Std.int(ds.width), Std.int(ds.height), true, 0x00FFFFFF);
@@ -171,10 +172,10 @@ class Cast
 		if (data == null)
 			return null;
 
-		if (Std.is(data, String))
+		if (FastStd.is(data, String))
 			data = tryclass(data);
 
-		if (Std.is(data, Class))
+		if (FastStd.is(data, Class))
 		{
 			try
 			{
@@ -186,16 +187,16 @@ class Cast
 			}
 		}
 
-		if (Std.is(data, Material))
+		if (FastStd.is(data, Material))
 			return data;
 
-		if (Std.is(data, Int)) 
+		if (FastStd.is(data, Int)) 
 			return (new ColorMaterial(data));
 
 		//if (data is MovieClip) 
 		//    return new MovieMaterial(data);
 
-		if (Std.is(data, String))
+		if (FastStd.is(data, String))
 		{
 			if (data == "")
 				return null;

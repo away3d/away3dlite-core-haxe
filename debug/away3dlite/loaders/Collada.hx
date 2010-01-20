@@ -10,6 +10,7 @@ import away3dlite.core.base.Mesh;
 import away3dlite.core.base.Object3D;
 import away3dlite.core.utils.Cast;
 import away3dlite.core.utils.Debug;
+import away3dlite.haxeutils.FastStd;
 import away3dlite.loaders.data.AnimationData;
 import away3dlite.loaders.data.BoneData;
 import away3dlite.loaders.data.ChannelData;
@@ -62,10 +63,10 @@ class Collada extends AbstractParser
 		Debug.trace(" + Build Container : " + containerData.name);
 		
 		for (_objectData in containerData.children) {
-			if (Std.is(_objectData, MeshData)) {
+			if (FastStd.is(_objectData, MeshData)) {
 				var mesh:Mesh = buildMesh(Lib.as(_objectData, MeshData), parent);
 				_containers.set(_objectData.name, mesh);
-			} else if (Std.is(_objectData, BoneData)) {
+			} else if (FastStd.is(_objectData, BoneData)) {
 				var _boneData:BoneData = Lib.as(_objectData, BoneData);
 				var bone:Bone = new Bone();
 				bone.name = _boneData.name;
@@ -84,7 +85,7 @@ class Collada extends AbstractParser
 				
 				parent.addChild(bone);
 				
-			} else if (Std.is(_objectData, ContainerData)) {
+			} else if (FastStd.is(_objectData, ContainerData)) {
 				var _containerData:ContainerData = Lib.as(_objectData, ContainerData);
 				var objectContainer:ObjectContainer3D = _containerData.container = new ObjectContainer3D();
 				objectContainer.name = _containerData.name;
@@ -160,23 +161,23 @@ class Collada extends AbstractParser
 			i0 = _faceData.v0*3;
 			i1 = _faceData.v1*3;
 			i2 = _faceData.v2*3;
-			mesh.arcaneNS()._vertices.xyzpush(vertices[i0], vertices[i0+1], vertices[i0+2]);
+			mesh.arcaneNS()._vertices.push3(vertices[i0], vertices[i0+1], vertices[i0+2]);
 			buildSkinVertices(_geometryData, _faceData.v0, mesh.arcaneNS()._vertices);
-			mesh.arcaneNS()._vertices.xyzpush(vertices[i1], vertices[i1+1], vertices[i1+2]);
+			mesh.arcaneNS()._vertices.push3(vertices[i1], vertices[i1+1], vertices[i1+2]);
 			buildSkinVertices(_geometryData, _faceData.v1, mesh.arcaneNS()._vertices);
-			mesh.arcaneNS()._vertices.xyzpush(vertices[i2], vertices[i2+1], vertices[i2+2]);
+			mesh.arcaneNS()._vertices.push3(vertices[i2], vertices[i2+1], vertices[i2+2]);
 			buildSkinVertices(_geometryData, _faceData.v2, mesh.arcaneNS()._vertices);
 			
 			//set uvData
 			i0 = _faceData.uv0*3;
 			i1 = _faceData.uv1*3;
 			i2 = _faceData.uv2*3;
-			mesh.arcaneNS()._uvtData.xyzpush(uvtData[i0], uvtData[i0 + 1], uvtData[i0 + 2]);
-			mesh.arcaneNS()._uvtData.xyzpush(uvtData[i1], uvtData[i1 + 1], uvtData[i1 + 2]);
-			mesh.arcaneNS()._uvtData.xyzpush(uvtData[i2], uvtData[i2 + 1], uvtData[i2 + 2]);
+			mesh.arcaneNS()._uvtData.push3(uvtData[i0], uvtData[i0 + 1], uvtData[i0 + 2]);
+			mesh.arcaneNS()._uvtData.push3(uvtData[i1], uvtData[i1 + 1], uvtData[i1 + 2]);
+			mesh.arcaneNS()._uvtData.push3(uvtData[i2], uvtData[i2 + 1], uvtData[i2 + 2]);
 			
 			//set indices
-			mesh.arcaneNS()._indices.xyzpush(i++, i++, i++);
+			mesh.arcaneNS()._indices.push3(i++, i++, i++);
 			
 			//set facelengths
 			mesh.arcaneNS()._faceLengths.push(3);
@@ -275,7 +276,7 @@ class Collada extends AbstractParser
 						if (_animationData.end < times[Std.int(times.length) - 1])
 							_animationData.end = Std.int(times[Std.int(times.length) - 1]);
 						
-						if (Std.is(channel.target, Bone)) {
+						if (FastStd.is(channel.target, Bone)) {
 							rX = "jointRotationX";
 							rY = "jointRotationY";
 							rZ = "jointRotationZ";
@@ -424,14 +425,14 @@ class Collada extends AbstractParser
 		var i = -1;
 		while (++i < totalStrings)
 			if (strings[i] != "")
-				numbers.push(Std.parseFloat(strings[i]));
+				numbers.push(FastStd.parseFloat(strings[i]));
 
 		return numbers;
 	}
 
 	private function getId(url:Dynamic):String
 	{
-		return Std.string(url).split("#")[1];
+		return FastStd.string(url).split("#")[1];
 	}
 	
 	/**
@@ -573,7 +574,7 @@ class Collada extends AbstractParser
 			if ((node._("@type").toString()) == "JOINT")
 				_objectData = new BoneData();
 			else {
-				if ((node._("instance_node")._("@url").toString()) == "" && ((node._("node").toString()) == "" || Std.is(parent, BoneData)))
+				if ((node._("instance_node")._("@url").toString()) == "" && ((node._("node").toString()) == "" || FastStd.is(parent, BoneData)))
 					return;
 				_objectData = new ContainerData();
 			}
@@ -623,7 +624,7 @@ class Collada extends AbstractParser
 
 				case "rotate":
 					sid = childNode._("@sid").toString();
-					if (Std.is(_objectData, BoneData) && (sid == "rotateX" || sid == "rotateY" || sid == "rotateZ" || sid == "rotX" || sid == "rotY" || sid == "rotZ")) {
+					if (FastStd.is(_objectData, BoneData) && (sid == "rotateX" || sid == "rotateY" || sid == "rotateZ" || sid == "rotX" || sid == "rotY" || sid == "rotZ")) {
 						if (yUp) {
 							boneData.jointTransform.prependRotation(-arrayChild[3], new Vector3D(arrayChild[0], arrayChild[1], -arrayChild[2]));
 						} else {
@@ -638,7 +639,7 @@ class Collada extends AbstractParser
 					}
 					
 				case "scale":
-					if ( Std.is(_objectData, BoneData) ) {
+					if ( FastStd.is(_objectData, BoneData) ) {
 						if (yUp)
 							boneData.jointTransform.prependScale(arrayChild[0], arrayChild[1], arrayChild[2]);
 						else
@@ -659,7 +660,7 @@ class Collada extends AbstractParser
 				case "node":
 					//3dsMax 11 - Feeling ColladaMax v3.05B
 					//<node><node/></node>
-					if(Std.is(_objectData, MeshData))
+					if(FastStd.is(_objectData, MeshData))
 					{
 						parseNode(childNode, Lib.as(parent, ContainerData));
 					}else{
@@ -897,13 +898,13 @@ class Collada extends AbstractParser
 		i = 0;
 		var leng = geometryData.vertices.length / 3;
 		while (i < leng) {
-			c = Std.parseInt(vcount[i]);
+			c = FastStd.parseInt(vcount[i]);
 			geometryData.skinVertices.push(skinVertex = new SkinVertex());
 			var j=0;
 			while (j < c) {
-				skinVertex.controllers.push(geometryData.skinControllers[Std.parseInt(v[count])]);
+				skinVertex.controllers.push(geometryData.skinControllers[FastStd.parseInt(v[count])]);
 				count++;
-				skinVertex.weights.push(Std.parseFloat(weights[Std.parseInt(v[count])]));
+				skinVertex.weights.push(FastStd.parseFloat(weights[FastStd.parseInt(v[count])]));
 				count++;
 				++j;
 			}
@@ -945,7 +946,7 @@ class Collada extends AbstractParser
 				// COLLADAMax NextGen;  Version: 1.1.0;  Platform: Win32;  Configuration: Release Max2009
 				// issue#1 : missing channel.@id -> use automatic id instead
 				Debug.trace(" ! COLLADAMax2009 id : _"+_channel_id);
-				channelLibrary.addChannel("_"+Std.string(_channel_id++), channel);
+				channelLibrary.addChannel("_"+FastStd.string(_channel_id++), channel);
 			}
 		}
 
@@ -959,7 +960,7 @@ class Collada extends AbstractParser
 				channelLibrary.addChannel(channel._("@id").toString(), channel);
 			}else{
 				Debug.trace(" ! C4D id : _"+_channel_id);
-				channelLibrary.addChannel("_"+Std.string(_channel_id++), channel);
+				channelLibrary.addChannel("_"+FastStd.string(_channel_id++), channel);
 			}
 		}
 				
@@ -1031,12 +1032,12 @@ class Collada extends AbstractParser
 			var src:XML = node._("source")._filter_eq("@id", getId(input._("@source")))[0];
 			var strlist:Array<String> = (src._("float_array").toString()).split(" ");
 			var list:Array<Float> = [];
-			var len:Int = Std.parseInt(src._("technique_common")._("accessor")._("@count").toString());
-			var stride:Int = Std.parseInt(src._("technique_common")._("accessor")._("@stride").toString());
+			var len:Int = FastStd.parseInt(src._("technique_common")._("accessor")._("@count").toString());
+			var stride:Int = FastStd.parseInt(src._("technique_common")._("accessor")._("@stride").toString());
 			var semantic:String = input._("@semantic").toString();
 			
 			for (val in strlist)
-				list.push(Std.parseFloat(val));
+				list.push(FastStd.parseFloat(val));
 			
 			//C4D : no stride defined
 			if (stride == 0)
@@ -1217,7 +1218,7 @@ class Collada extends AbstractParser
 			materialData.ambientColor = getColorValue(effect.__("ambient")[0]);
 			materialData.diffuseColor = getColorValue(effect.__("diffuse")[0]);
 			materialData.specularColor = getColorValue(effect.__("specular")[0]);
-			materialData.shininess = Std.parseFloat(effect.__("shininess")._("float")[0].toString());
+			materialData.shininess = FastStd.parseFloat(effect.__("shininess")._("float")[0].toString());
 		}
 	}
 	
@@ -1233,7 +1234,7 @@ class Collada extends AbstractParser
 		if(colorArray.length <= 0)
 			return 0xFFFFFF;
 		
-		return (Std.parseInt(colorArray[0])*255 << 16) | (Std.parseInt(colorArray[1])*255 << 8) | (Std.parseInt(colorArray[2])*255);
+		return (FastStd.parseInt(colorArray[0])*255 << 16) | (FastStd.parseInt(colorArray[1])*255 << 8) | (FastStd.parseInt(colorArray[2])*255);
 	}
 	
 	/**
@@ -1308,7 +1309,7 @@ class Collada extends AbstractParser
 						}
 					default:
 				}
-				output.xyzpush(value.x, value.y, value.z);
+				output.push3(value.x, value.y, value.z);
 			}
 		}
 		else

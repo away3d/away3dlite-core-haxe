@@ -28,14 +28,14 @@ class MathUtils
 	 * @author Nick from http://www.devmaster.net/forums/showthread.php?t=5784
 	 * @param	x
 	 */
-	public static function fastSine(x:Float):Float
+	public static inline function fastSine(x:Float):Float
 	{
 		var y = B * x + C * x * abs(x);
 		
 		return P * (y * abs(y) - y) + y;
 	}
 	
-	public static function fastCosine(x:Float):Float
+	public static inline function fastCosine(x:Float):Float
 	{
 		x = x + HALF_PI;
 		if (x > PI)
@@ -56,7 +56,7 @@ class MathUtils
 	 * @param	x
 	 * @return
 	 */
-	public static function sqrt(x : Float ) : Float
+	public static inline function sqrt(x : Float ) : Float
 	{
 		var half = 0.5 * x;
 		flash.Memory.setFloat(0,x);
@@ -68,7 +68,7 @@ class MathUtils
 		return 1/ x;
 	}
 	
-	public static function invSqrt( x : Float ) : Float 
+	public static inline function invSqrt( x : Float ) : Float 
 	{
 		var half = 0.5 * x;
 		flash.Memory.setFloat(0,x);

@@ -2,6 +2,8 @@ package away3dlite.animators.bones;
 
 import away3dlite.core.base.Object3D;
 import away3dlite.containers.ObjectContainer3D;
+import away3dlite.haxeutils.FastReflect;
+import away3dlite.haxeutils.FastStd;
 import flash.Lib;
 
 /**
@@ -28,10 +30,8 @@ import flash.Lib;
 	public var times:Array<Float>;
 	public var interpolations:Array<Float>;
 	
-	#if !as3_original
 	private var setFields:Hash<Dynamic>;
 	private var lastLen:Int;
-	#end
 	
 	public function new(name:String)
 	{
@@ -55,7 +55,7 @@ import flash.Lib;
 		
 		while (--i >= lastLen)
 		{
-			if (Reflect.hasField(target, "set_" + type[i]))
+			if (FastReflect.hasField(target, "set_" + type[i]))
 				setFields.set(type[i], Reflect.field(target, "set_" + type[i]));
 		}
 		lastLen = type.length;

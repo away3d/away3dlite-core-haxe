@@ -1,4 +1,6 @@
 package away3dlite.core.utils;
+import away3dlite.haxeutils.FastReflect;
+import away3dlite.haxeutils.FastStd;
 import flash.Error;
 import flash.Lib;
 import haxe.Log;
@@ -21,11 +23,11 @@ class Debug
 		if (val)
 			Log.trace = function(v:Dynamic, ?infos:PosInfos) { 
 				var str:String = "";
-				if (Std.is(v, Float) || Std.is(v, String) || Std.is(v, Bool))
+				if (FastStd.is(v, Float) || FastStd.is(v, String) || FastStd.is(v, Bool))
 					Lib.trace(v);
 				else
 				{
-					if (Reflect.hasField(v, "toString"))
+					if (FastReflect.hasField(v, "toString"))
 						flash.Lib.trace(v.toString());
 					else
 					{

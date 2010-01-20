@@ -3,15 +3,15 @@
  */
 
 package away3dlite.haxeutils.xml;
+import away3dlite.haxeutils.FastStd;
 import flash.utils.Proxy;
 import flash.xml.XMLList;
 import flash.xml.XML;
 import flash.Vector;
 
-
 using away3dlite.haxeutils.xml.E4X;
 
-class E4X
+#if haxe205 extern #end class E4X
 {
 	/**
 	 * Used to replicate bracketed access in XML and XMLList classes. Will also work with the "@" operator.
@@ -51,9 +51,6 @@ class E4X
 	 */
 	public static inline function _filter(node:XML, field:String, compareTo:Dynamic, compareFunction:Dynamic->Dynamic->Bool):XMLList
 	{
-		if (compareFunction == null)
-			compareFunction = equalsTo;
-
 		var len = untyped node.length();
 		var retval = "";
 		var i = -1;
@@ -81,7 +78,6 @@ class E4X
 	
 	public static inline function _filter_eq(node:XML, field:String, compareTo:Dynamic):XMLList
 	{
-
 		var len = untyped node.length();
 		var retval = "";
 		var i = -1;
@@ -97,12 +93,15 @@ class E4X
 		return new XMLList(retval);
 	}
 	
-	private static function equalsTo(val1:Dynamic, val2:Dynamic):Bool
+	public static inline function toFloat(node:XML):Float
 	{
-		return val1 == val2;
+		return FastStd.parseFloat(node.toString());
 	}
-	
-	public inline function iterator(node:XML):Iterator<XML>
+}
+
+class E4XML 
+{
+	public static function iterator(node:XML):Iterator<XML>
 	{
 		return untyped {
 			n : node,
@@ -112,14 +111,9 @@ class E4X
 			next: function() { return new XML( this.n[this.i++] ); }
 		}
 	}
-	
-	public static inline function toFloat(node:XML):Float
-	{
-		return Std.parseFloat(node.toString());
-	}
 }
 
-class E4XList
+#if haxe205 extern #end class E4XList
 {
 	/**
 	 * Used to replicate bracketed access in XML and XMLList classes. Will also work with the "@" operator.
@@ -159,9 +153,6 @@ class E4XList
 	 */
 	public static inline function _filter(node:XMLList, field:String, compareTo:Dynamic, compareFunction:Dynamic->Dynamic->Bool):XMLList
 	{
-		if (compareFunction == null)
-			compareFunction = equalsTo;
-
 		var len = untyped node.length();
 		var retval = "";
 		var i = -1;
@@ -179,7 +170,6 @@ class E4XList
 	
 	public static inline function _filter_eq(node:XMLList, field:String, compareTo:Dynamic):XMLList
 	{
-
 		var len = node.length();
 		var retval = "";
 		var i = -1;
@@ -195,11 +185,14 @@ class E4XList
 		return new XMLList(retval);
 	}
 	
-	private static function equalsTo(val1:Dynamic, val2:Dynamic):Bool
+	public static inline function toFloat(node:XMLList):Float
 	{
-		return val1 == val2;
+		return FastStd.parseFloat(node.toString());
 	}
-	
+}
+
+class E4XMLList
+{
 	public static function iterator(node:XMLList):Iterator<XML>
 	{
 		return untyped {
@@ -209,10 +202,5 @@ class E4XList
 			hasNext: function() { return (this.i < this.len); },
 			next: function() { return new XML( this.n[this.i++] ); }
 		}
-	}
-	
-	public static inline function toFloat(node:XMLList):Float
-	{
-		return Std.parseFloat(node.toString());
 	}
 }

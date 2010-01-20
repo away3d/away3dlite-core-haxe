@@ -5,6 +5,7 @@ import away3dlite.containers.View3D;
 import away3dlite.core.base.Face;
 import away3dlite.core.base.Mesh;
 import away3dlite.events.ClippingEvent;
+import away3dlite.haxeutils.FastStd;
 import flash.display.Sprite;
 import flash.display.Stage;
 import flash.events.EventDispatcher;

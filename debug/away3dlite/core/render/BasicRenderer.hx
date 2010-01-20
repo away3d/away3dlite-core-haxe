@@ -5,6 +5,8 @@ import away3dlite.core.base.Face;
 import away3dlite.core.base.Mesh;
 import away3dlite.core.base.Object3D;
 import away3dlite.core.utils.Debug;
+import away3dlite.haxeutils.FastStd;
+import away3dlite.haxeutils.FastStd;
 import away3dlite.materials.Material;
 import flash.display.GraphicsTrianglePath;
 import flash.display.IGraphicsData;
@@ -41,7 +43,7 @@ class BasicRenderer extends Renderer
 		_mouseEnabledArray.push(_mouseEnabled);
 		_mouseEnabled = object.arcaneNS()._mouseEnabled = (_mouseEnabled && object.mouseEnabled);
 		
-		if (Std.is(object, ObjectContainer3D)) {
+		if (FastStd.is(object, ObjectContainer3D)) {
 			var children:Array<Object3D> = Lib.as(object, ObjectContainer3D).children;
 			//var child:Object3D;
 			
@@ -54,7 +56,7 @@ class BasicRenderer extends Renderer
 			
 		}
 		
-		if (Std.is(object, Mesh)) {
+		if (FastStd.is(object, Mesh)) {
 			var mesh:Mesh = Lib.as(object, Mesh);
 			
 			_clipping.arcaneNS().collectFaces(mesh, _faces);

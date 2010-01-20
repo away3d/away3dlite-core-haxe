@@ -5,6 +5,7 @@ import away3dlite.core.base.Face;
 import away3dlite.core.base.Mesh;
 import away3dlite.core.base.Object3D;
 import away3dlite.core.utils.Debug;
+import away3dlite.haxeutils.FastStd;
 import away3dlite.materials.Material;
 import flash.display.IGraphicsData;
 import flash.Lib;
@@ -28,7 +29,7 @@ class FastRenderer extends Renderer
 		_mouseEnabledArray.push(_mouseEnabled);
 		_mouseEnabled = object.arcaneNS()._mouseEnabled = (_mouseEnabled && object.mouseEnabled);
 		
-		if (Std.is(object, ObjectContainer3D)) {
+		if (FastStd.is(object, ObjectContainer3D)) {
 			children = Lib.as(object, ObjectContainer3D).children;
 			var child:Object3D;
 			
@@ -104,14 +105,14 @@ class FastRenderer extends Renderer
 	
 	private function collectPointFaces(object:Object3D):Void
 	{
-		if (Std.is(object, ObjectContainer3D)) {
+		if (FastStd.is(object, ObjectContainer3D)) {
 			var children:Array<Object3D> = Lib.as(object, ObjectContainer3D).children;
 			var child:Object3D;
 			
 			for (child in children)
 				collectPointFaces(child);
 			
-		} else if (Std.is ( object,  Mesh ) ) {
+		} else if (FastStd.is ( object,  Mesh ) ) {
 			var mesh:Mesh = Lib.as(object, Mesh);
 			
 			_faces = mesh.arcaneNS()._faces;

@@ -61,7 +61,7 @@ class AWData extends AbstractParser
 						version = line.substr(3,line.length-4);
 						
 					if(state == "#f"){
-						isMaterial = (Std.parseInt(line.substr(3,4)) == 2);
+						isMaterial = (FastStd.parseInt(line.substr(3,4)) == 2);
 						resolvedP = "";
 						if(isMaterial){
 							if(customPath != ""){
@@ -88,7 +88,7 @@ class AWData extends AbstractParser
 				if(state == "#o"){
 					
 					if(buffer == 0){
-							id = Std.parseInt(dline[0]);
+							id = FastStd.parseInt(dline[0]);
 							//var temparr:Vector<Float> = Lib.vectorOfArray([FastStd.parseFloat(dline[1]),FastStd.parseFloat(dline[5]),FastStd.parseFloat(dline[9]),FastStd.parseFloat(dline[2]),FastStd.parseFloat(dline[6]),FastStd.parseFloat(dline[10]),FastStd.parseFloat(dline[3]),FastStd.parseFloat(dline[7]),FastStd.parseFloat(dline[11]),FastStd.parseFloat(dline[4]),FastStd.parseFloat(dline[8]),FastStd.parseFloat(dline[12]),0,0,0,1]);
 							m = new Matrix3D(Lib.vectorOfArray([FastStd.parseFloat(dline[1]),FastStd.parseFloat(dline[2]),FastStd.parseFloat(dline[3]),FastStd.parseFloat(dline[4]),FastStd.parseFloat(dline[5]),FastStd.parseFloat(dline[6]),FastStd.parseFloat(dline[7]),FastStd.parseFloat(dline[8]),FastStd.parseFloat(dline[9]),FastStd.parseFloat(dline[10]),FastStd.parseFloat(dline[11]),FastStd.parseFloat(dline[12]),0,0,0,1]));
 							++buffer;
@@ -180,22 +180,22 @@ class AWData extends AbstractParser
 				while (j < len)
 				{
 					av = ref.geo.aV[FastStd.parseIntRadix(aRef[j], 16)].split("/");
-					mesh.arcaneNS()._vertices.xyzpush(FastStd.parseFloat(av[0]), -(FastStd.parseFloat(av[1])), FastStd.parseFloat(av[2]));
+					mesh.arcaneNS()._vertices.push3(FastStd.parseFloat(av[0]), -(FastStd.parseFloat(av[1])), FastStd.parseFloat(av[2]));
 					av = ref.geo.aV[FastStd.parseIntRadix(aRef[j+1],16)].split("/");
-					mesh.arcaneNS()._vertices.xyzpush(FastStd.parseFloat(av[0]), -(FastStd.parseFloat(av[1])), FastStd.parseFloat(av[2]));
+					mesh.arcaneNS()._vertices.push3(FastStd.parseFloat(av[0]), -(FastStd.parseFloat(av[1])), FastStd.parseFloat(av[2]));
 					av = ref.geo.aV[FastStd.parseIntRadix(aRef[j+2],16)].split("/");
-					mesh.arcaneNS()._vertices.xyzpush(FastStd.parseFloat(av[0]), -(FastStd.parseFloat(av[1])), FastStd.parseFloat(av[2]));
+					mesh.arcaneNS()._vertices.push3(FastStd.parseFloat(av[0]), -(FastStd.parseFloat(av[1])), FastStd.parseFloat(av[2]));
 
-					mesh.arcaneNS()._indices.xyzpush(index, index + 1, index + 2);
+					mesh.arcaneNS()._indices.push3(index, index + 1, index + 2);
 					mesh.arcaneNS()._faceLengths.push(3);
 					index+=3;
 
 					au = ref.geo.aU[FastStd.parseIntRadix(aRef[j+3],16)].split("/");
-					mesh.arcaneNS()._uvtData.xyzpush(FastStd.parseFloat(au[0]), 1-FastStd.parseFloat(au[1]), 0);
+					mesh.arcaneNS()._uvtData.push3(FastStd.parseFloat(au[0]), 1-FastStd.parseFloat(au[1]), 0);
 					au = ref.geo.aU[FastStd.parseIntRadix(aRef[j+4],16)].split("/");
-					mesh.arcaneNS()._uvtData.xyzpush(FastStd.parseFloat(au[0]), 1-FastStd.parseFloat(au[1]), 0);
+					mesh.arcaneNS()._uvtData.push3(FastStd.parseFloat(au[0]), 1-FastStd.parseFloat(au[1]), 0);
 					au = ref.geo.aU[FastStd.parseIntRadix(aRef[j+5],16)].split("/");
-					mesh.arcaneNS()._uvtData.xyzpush(FastStd.parseFloat(au[0]), 1 - FastStd.parseFloat(au[1]), 0);
+					mesh.arcaneNS()._uvtData.push3(FastStd.parseFloat(au[0]), 1 - FastStd.parseFloat(au[1]), 0);
 					
 					j += 6;
 				}
@@ -240,7 +240,7 @@ class AWData extends AbstractParser
 				while(str.charCode(i)!=44 && str.charCode(i)!= 45 && str.charCode(i)!= 46 && str.charCode(i)!= 47 && i<=charcount){
 					i++;
 				}
-				chunk = ""+Std.parseInt("0x"+str.substring(start, i));
+				chunk = ""+FastStd.parseInt("0x"+str.substring(start, i));
 				dec+= chunk;
 				i--;
 			}

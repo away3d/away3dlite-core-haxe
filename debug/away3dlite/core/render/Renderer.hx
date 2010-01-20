@@ -5,6 +5,7 @@ import away3dlite.containers.View3D;
 import away3dlite.core.base.Face;
 import away3dlite.core.base.Mesh;
 import away3dlite.core.clip.Clipping;
+import away3dlite.haxeutils.FastStd;
 import flash.display.GraphicsTrianglePath;
 import flash.display.IGraphicsData;
 import flash.Lib;

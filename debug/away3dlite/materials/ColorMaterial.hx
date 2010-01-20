@@ -1,5 +1,6 @@
 package away3dlite.materials;
 import away3dlite.core.utils.Cast;
+import away3dlite.haxeutils.FastStd;
 import flash.display.BitmapData;
 import flash.display.GraphicsBitmapFill;
 import flash.display.IGraphicsData;

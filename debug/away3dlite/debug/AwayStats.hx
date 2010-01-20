@@ -1,5 +1,6 @@
 ﻿package away3dlite.debug;
 import away3dlite.containers.View3D;
+import away3dlite.haxeutils.FastStd;
 import flash.display.BitmapData;
 import flash.display.Graphics;
 import flash.display.Shape;
@@ -418,8 +419,8 @@ class AwayStats extends Sprite
 		var dia_y : Int;
 		
 		// Redraw counters
-		_fps_tf.text = Std.string(_fps) + '/' + stage.frameRate;
-		_afps_tf.text = Std.string(Math.round(_avg_fps));
+		_fps_tf.text = FastStd.string(_fps) + '/' + stage.frameRate;
+		_afps_tf.text = FastStd.string(Math.round(_avg_fps));
 		_ram_tf.text = _getRamString(_ram) + ' / ' + _getRamString(_max_ram);
 
 		
@@ -508,7 +509,7 @@ class AwayStats extends Sprite
 			ram_unit = 'K'; 
 		}
 		
-		var ret:String = Std.string(ram);
+		var ret:String = FastStd.string(ram);
 		return ret.substr(0, ret.indexOf(".") + 1) + ram_unit;
 	}
 	

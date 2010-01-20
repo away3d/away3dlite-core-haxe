@@ -1,6 +1,7 @@
 package away3dlite.core.clip;
 import away3dlite.core.base.Face;
 import away3dlite.core.base.Mesh;
+import away3dlite.haxeutils.FastStd;
 import flash.Lib;
 import flash.Vector;
 

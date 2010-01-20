@@ -1,5 +1,6 @@
 package away3dlite.core.base;
 
+import away3dlite.haxeutils.FastStd;
 import away3dlite.materials.Material;
 import away3dlite.namespace.Arcane;
 import flash.geom.Vector3D;

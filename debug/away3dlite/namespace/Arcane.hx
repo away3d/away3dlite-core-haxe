@@ -5,7 +5,7 @@
 
 package away3dlite.namespace;
 
-class _MaterialArcane
+#if haxe205 extern #end class _MaterialArcane
 {
 	public static inline function arcaneNS(obj : away3dlite.materials.Material) : _Material
 	{
@@ -13,7 +13,7 @@ class _MaterialArcane
 	}
 }
 
-class _Sprite3DArcane
+#if haxe205 extern #end class _Sprite3DArcane
 {
 	public static inline function arcaneNS(obj : away3dlite.sprites.Sprite3D) : _Sprite3D
 	{
@@ -21,7 +21,7 @@ class _Sprite3DArcane
 	}
 }
 
-class _RendererArcane
+#if haxe205 extern #end class _RendererArcane
 {
 	public static inline function arcaneNS(obj : away3dlite.core.render.Renderer) : _Renderer
 	{
@@ -29,7 +29,7 @@ class _RendererArcane
 	}
 }
 
-class _ClippingArcane
+#if haxe205 extern #end class _ClippingArcane
 {
 	public static function arcaneNS(obj : away3dlite.core.clip.Clipping) : _Clipping
 	{
@@ -37,7 +37,7 @@ class _ClippingArcane
 	}
 }
 
-class _View3DArcane
+#if haxe205 extern #end class _View3DArcane
 {
 	public static inline function arcaneNS(obj : away3dlite.containers.View3D) : _View3D
 	{
@@ -45,7 +45,7 @@ class _View3DArcane
 	}
 }
 
-class _AbstractPrimitiveArcane
+#if haxe205 extern #end class _AbstractPrimitiveArcane
 {
 	public static inline function arcaneNS(obj : away3dlite.loaders.AbstractParser) : _AbstractParser
 	{
@@ -53,7 +53,7 @@ class _AbstractPrimitiveArcane
 	}
 }
 
-class _Camera3DArcane
+#if haxe205 extern #end class _Camera3DArcane
 {
 	public static inline function arcaneNS(obj : away3dlite.cameras.Camera3D) : _Camera3D
 	{
@@ -61,7 +61,7 @@ class _Camera3DArcane
 	}
 }
 
-class _AbstractParserArcane
+#if haxe205 extern #end class _AbstractParserArcane
 {
 	public static inline function arcaneNS(obj : away3dlite.loaders.AbstractParser) : _AbstractParser
 	{
@@ -69,7 +69,7 @@ class _AbstractParserArcane
 	}
 }
 
-class _Scene3DArcane
+#if haxe205 extern #end class _Scene3DArcane
 {
 	public static inline function arcaneNS(obj : away3dlite.containers.Scene3D) : _Scene3D
 	{
@@ -77,7 +77,7 @@ class _Scene3DArcane
 	}
 }
 
-class _ObjectContainer3DArcane
+#if haxe205 extern #end class _ObjectContainer3DArcane
 {
 	public static inline function arcaneNS(obj : away3dlite.containers.ObjectContainer3D) : _ObjectContainer3D
 	{
@@ -85,7 +85,7 @@ class _ObjectContainer3DArcane
 	}
 }
 
-class _MeshArcane
+#if haxe205 extern #end class _MeshArcane
 {
 	public static inline function arcaneNS(obj : away3dlite.core.base.Mesh) : _Mesh
 	{
@@ -98,7 +98,7 @@ class _MeshArcane
 	}
 }
 
-class _Object3DArcane
+#if haxe205 extern #end class _Object3DArcane
 {
 	public static inline function arcaneNS(obj : away3dlite.core.base.Object3D) : _Object3D
 	{

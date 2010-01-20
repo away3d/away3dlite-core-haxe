@@ -3,6 +3,7 @@ package away3dlite.containers;
 import away3dlite.animators.bones.Bone;
 import away3dlite.cameras.Camera3D;
 import away3dlite.core.base.Mesh;
+import away3dlite.haxeutils.FastStd;
 import away3dlite.sprites.AlignmentType;
 import away3dlite.sprites.Sprite3D;
 import away3dlite.core.base.Object3D;
@@ -282,7 +283,7 @@ class ObjectContainer3D extends Mesh
 				if (object3D.name == childName)
 					return object3D;
 			
-			if (Std.is(object3D, ObjectContainer3D)) {
+			if (FastStd.is(object3D, ObjectContainer3D)) {
 				child = Lib.as( Lib.as(object3D, ObjectContainer3D).getChildByName(childName),  Object3D )  ;
 				if (child != null)
 					return child;
@@ -302,7 +303,7 @@ class ObjectContainer3D extends Mesh
 	{	
 		var bone:Bone;
 		for (object3D in children) {
-			if (Std.is(object3D, Bone)) {
+			if (FastStd.is(object3D, Bone)) {
 				bone = Lib.as(object3D, Bone);
 				
 				if (bone.name != null)
@@ -313,7 +314,7 @@ class ObjectContainer3D extends Mesh
 					if (bone.boneId == boneName)
 						return bone;
 			}
-			if (Std.is(object3D, ObjectContainer3D)) {
+			if (FastStd.is(object3D, ObjectContainer3D)) {
 				bone = Lib.as(object3D, ObjectContainer3D).getBoneByName(boneName);
 				if (bone != null)
 					return bone;
