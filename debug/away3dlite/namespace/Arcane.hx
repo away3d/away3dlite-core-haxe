@@ -31,7 +31,12 @@ package away3dlite.namespace;
 
 #if haxe205 extern #end class _ClippingArcane
 {
-	public static function arcaneNS(obj : away3dlite.core.clip.Clipping) : _Clipping
+	public static inline function arcaneNS(obj : away3dlite.core.clip.Clipping) : _Clipping
+	{
+		return obj;
+	}
+	
+	public static inline function arcane_ns(obj : away3dlite.core.clip.Clipping) : _Clipping
 	{
 		return obj;
 	}

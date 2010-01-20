@@ -4,7 +4,6 @@
 package away3dlite.animators;
 import away3dlite.animators.frames.Frame;
 import away3dlite.core.base.Mesh;
-import away3dlite.haxeutils.FastStd;
 import flash.events.Event;
 import flash.Lib;
 import flash.Vector;

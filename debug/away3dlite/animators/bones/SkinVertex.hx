@@ -1,6 +1,5 @@
 ﻿package away3dlite.animators.bones;
 
-import away3dlite.haxeutils.FastStd;
 import flash.geom.Vector3D;
 import flash.Vector;
 

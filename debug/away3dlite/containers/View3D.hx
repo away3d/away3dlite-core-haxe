@@ -47,7 +47,7 @@ class View3D extends Sprite
 			updateScreenClipping();
 			_screenClippingDirty = false;
 			
-			return _screenClipping = _clipping.arcaneNS().screen(this, _loaderWidth, _loaderHeight);
+			return _screenClipping = _clipping.arcane_ns().screen(this, _loaderWidth, _loaderHeight);
 		}
 		
 		return _screenClipping;

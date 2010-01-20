@@ -6,7 +6,6 @@ import away3dlite.core.base.Mesh;
 import away3dlite.core.base.Object3D;
 import away3dlite.core.utils.Debug;
 import away3dlite.haxeutils.FastStd;
-import away3dlite.haxeutils.FastStd;
 import away3dlite.materials.Material;
 import flash.display.GraphicsTrianglePath;
 import flash.display.IGraphicsData;
