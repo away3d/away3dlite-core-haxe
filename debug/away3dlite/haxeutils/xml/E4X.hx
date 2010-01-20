@@ -11,7 +11,7 @@ import flash.Vector;
 
 using away3dlite.haxeutils.xml.E4X;
 
-#if haxe205 extern #end class E4X
+#if haxe_205 extern #end class E4X
 {
 	/**
 	 * Used to replicate bracketed access in XML and XMLList classes. Will also work with the "@" operator.
@@ -113,7 +113,7 @@ class E4XML
 	}
 }
 
-#if haxe205 extern #end class E4XList
+#if haxe_205 extern #end class E4XList
 {
 	/**
 	 * Used to replicate bracketed access in XML and XMLList classes. Will also work with the "@" operator.

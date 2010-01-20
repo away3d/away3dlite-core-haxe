@@ -4,7 +4,7 @@
 
 package away3dlite.haxeutils;
 
-#if haxe205 extern #end class FastStd 
+#if haxe_205 extern #end class FastStd 
 {
 
 	public static inline function parseInt( str:String ):Int

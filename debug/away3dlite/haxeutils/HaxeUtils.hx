@@ -8,7 +8,7 @@ import flash.Lib;
 import flash.Vector;
 import flash.xml.XML;
 
-#if haxe205 extern #end class HaxeUtils 
+#if haxe_205 extern #end class HaxeUtils 
 {
 	public static inline function downcast<T>(object:Dynamic, cl:Class<T>):T
 	{
@@ -32,7 +32,7 @@ import flash.xml.XML;
 	
 }
 
-#if haxe205 extern #end class VectorUtils
+#if haxe_205 extern #end class VectorUtils
 {
 	public static inline function push4<T>(arr:Vector<T>, a1:T, a2:T, a3:T, a4:T):Void
 	{
@@ -50,7 +50,7 @@ import flash.xml.XML;
 	}
 }
 
-#if haxe205 extern #end class ArrayUtils
+#if haxe_205 extern #end class ArrayUtils
 {
 	public static inline function indexOf<T>(arr:Array<T>, needle:T):Int
 	{
@@ -88,7 +88,7 @@ import flash.xml.XML;
 
 //Helper class for fast, non-cross-platform operations on flash
 
-#if haxe205 extern #end class StringUtils
+#if haxe_205 extern #end class StringUtils
 {
 	public static inline function match(str:String, regex:EReg):Array<String>
 	{
