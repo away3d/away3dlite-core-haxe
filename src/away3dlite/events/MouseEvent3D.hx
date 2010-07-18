@@ -1,6 +1,7 @@
 package away3dlite.events;
 
 import away3dlite.containers.View3D;
+import away3dlite.core.base.Face;
 import away3dlite.core.base.Object3D;
 import flash.geom.Vector3D;
 import away3dlite.materials.Material;
@@ -93,6 +94,11 @@ class MouseEvent3D extends Event
 	public var shiftKey:Bool;
 	
 	/**
+	* Indicates the face that received the mouse event.
+	*/
+	public var face:Face;
+	
+	/**
 	 * Creates a new <code>MouseEvent3D</code> object.
 	 * 
 	 * @param	type		The type of the event. Possible values are: <code>MouseEvent3D.MOUSE_OVER</code>, <code>MouseEvent3D.MOUSE_OUT</code>, <code>MouseEvent3D.MOUSE_UP</code>, <code>MouseEvent3D.MOUSE_DOWN</code> and <code>MouseEvent3D.MOUSE_MOVE</code>.
@@ -112,6 +118,8 @@ class MouseEvent3D extends Event
 		if(isDefaultPrevented())
 			result.preventDefault();
 		
+		result.face = face;
+			
 		result.screenX = screenX;
 		result.screenY = screenY;
 		

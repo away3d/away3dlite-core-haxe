@@ -4,6 +4,7 @@ import away3dlite.animators.bones.Bone;
 import away3dlite.cameras.Camera3D;
 import away3dlite.core.base.Mesh;
 import away3dlite.haxeutils.FastStd;
+import away3dlite.lights.AbstractLight3D;
 import away3dlite.sprites.AlignmentType;
 import away3dlite.sprites.Sprite3D;
 import away3dlite.core.base.Object3D;
@@ -25,9 +26,17 @@ class ObjectContainer3D extends Mesh
 	/** @private */
 	/*arcane*/ private override function updateScene(val:Scene3D):Void
 	{
-		if (scene == val)
+		if (_scene == val)
 			return;
 		
+		if (_scene != null)
+			for (i in 0..._lights.length)
+				_scene.arcane_ns().removeSceneLight(_lights[i]);
+		
+		if (val != null)
+			for (i in 0..._lights.length)
+				val.arcane_ns().addSceneLight(_lights[i]);
+				
 		super.updateScene(val);
 		
 		for (child in _children)
@@ -38,25 +47,32 @@ class ObjectContainer3D extends Mesh
 	{
 		if (_sprites.length != 0)
 		{
-			_cameraInvSceneMatrix3D = camera.invSceneMatrix3D;
+			_cameraInvSceneMatrix3D = camera.arcaneNS()._invSceneMatrix3D;
 			_cameraSceneMatrix3D.rawData = _cameraInvSceneMatrix3D.rawData;
 			_cameraSceneMatrix3D.invert();
 			_cameraPosition = _cameraSceneMatrix3D.position;
 			_cameraForwardVector = new Vector3D(_cameraSceneMatrix3D.rawData[8], _cameraSceneMatrix3D.rawData[9], _cameraSceneMatrix3D.rawData[10]);
 		}
 		
+		for (i in 0..._lights.length)
+			_lights[i].arcaneNS()._camera = camera;
+		
 		super.project(camera, parentSceneMatrix3D);
 		
-		var child:Object3D;
+		if (!_perspCulling)
+		{
+			var child:Object3D;
 		
-		for (child in _children)
-			child.project(camera, _sceneMatrix3D);
+			for (child in _children)
+				child.project(camera, _sceneMatrix3D);
+		}
 	}
 	
 	private static inline var _toDegrees:Float = 180/Math.PI;
 	private var _index:Int;
 	private var _children:Array<Object3D>;
 	private var _sprites:Vector<Sprite3D>;
+	private var _lights:Vector<AbstractLight3D>;
 	private var _spriteVertices:Vector<Float>;
 	private var _spriteIndices:Vector<Int>;
 	private var _spritesDirty:Bool;
@@ -88,6 +104,12 @@ class ObjectContainer3D extends Mesh
 	private function get_sprites():Vector<Sprite3D>
 	{
 		return _sprites;
+	}
+	
+	public inline var lights(get_lights, never):Vector<AbstractLight3D>;
+	private inline function get_lights()
+	{
+		return _lights;
 	}
 	
 	/**
@@ -171,6 +193,7 @@ class ObjectContainer3D extends Mesh
 		_cameraInvSceneMatrix3D = new Matrix3D();
 		_orientationMatrix3D = new Matrix3D();
 		_cameraMatrix3D = new Matrix3D();
+		_lights = new Vector<AbstractLight3D>();
 		
 		if (childArray != null)
 			for (child in childArray)
@@ -223,12 +246,13 @@ class ObjectContainer3D extends Mesh
 	}
 	
 	/**
-	 * Adds a 3d object to the scene as a child of the container.
+	 * Adds a 3d sprite to the scene as a child of the container.
 	 * 
-	 * @param	child	The 3d object to be added.
+	 * @param	sprite	The 3d object to be added.
 	 */
 	public function addSprite(sprite:Sprite3D):Sprite3D
 	{
+		vectorsFixed = false;
 		_sprites[sprite.arcaneNS().index = _sprites.length] = sprite;
 		
 		_indices.length += 4;
@@ -239,6 +263,7 @@ class ObjectContainer3D extends Mesh
 		_faceLengths.push(4);
 		
 		_spritesDirty = true;
+		vectorsFixed = true;
 		
 		return sprite;
 	}
@@ -250,6 +275,7 @@ class ObjectContainer3D extends Mesh
 	 */
 	public function removeSprite(sprite:Sprite3D):Sprite3D
 	{
+		vectorsFixed = false;
 		_index = _sprites.indexOf(sprite);
 		
 		if (_index == -1)
@@ -257,16 +283,69 @@ class ObjectContainer3D extends Mesh
 		
 		_sprites.splice(_index, 1);
 		
+		// shift indices down one - get vertices chokes on this
+		for (i in 0..._sprites.length)
+			_sprites[i].arcaneNS().index = i;
+
+		// remove screen vertices if needed - clipping chokes on them
+		if (_screenVertices.length > 0)
+			_screenVertices.length -= 8;
+
 		_indices.length -= 4;
 		_vertices.length -= 12;
 		
 		_uvtData.splice(_index*12, 12);
 		_faceMaterials.splice(_index, 1);
 		_faceLengths.splice(_index, 1);
-		
+		_faces.splice(_index, 1); // rectangle clipping chokes on faces
 		_spritesDirty = true;
+		vectorsFixed = true;
 		
 		return sprite;
+	}
+	
+    /**
+	 * lock or unlock vectors when adding or removing sprites
+	 */
+	public var vectorsFixed(never, set_vectorsFixed):Bool;
+	private function set_vectorsFixed(value:Bool):Bool 
+	{
+		return _sprites.fixed = _indices.fixed = _vertices.fixed = _uvtData.fixed = _faceMaterials.fixed = _faceLengths.fixed = _faces.fixed = value;
+	}
+
+	/**
+	 * Adds a 3d light to the lights array of the container.
+	 * 
+	 * @param	light	The 3d light to be added.
+	 */
+	public function addLight(light:AbstractLight3D):AbstractLight3D
+	{
+		_lights[_lights.length] = light;
+		
+		if (_scene != null)
+			_scene.arcaneNS().addSceneLight(light);
+		
+		return light;
+	}
+	
+	/**
+	 * Removes a 3d light from the lights array of the container.
+	 * 
+	 * @param	light	The 3d light to be removed.
+	 */
+	public function removeLight(light:AbstractLight3D):AbstractLight3D
+	{
+		_index = _lights.indexOf(light);
+		
+		if (_index == -1)
+			return null;
+		
+		_sprites.splice(_index, 1);
+		
+		if (_scene != null)
+			_scene.arcaneNS().removeSceneLight(light);
+		
+		return light;
 	}
 	
 	/**

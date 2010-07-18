@@ -5,7 +5,23 @@
 
 package away3dlite.namespace;
 
-#if haxe_205 extern #end class _MaterialArcane
+#if (haxe_205 && flash9) extern #end class _AbstractLight3DArcane
+{
+	public static inline function arcaneNS(obj : away3dlite.lights.AbstractLight3D) : _AbstractLight3D
+	{
+		return obj;
+	}
+}
+
+#if (haxe_205 && flash9) extern #end class _AbstractLensArcane
+{
+	public static inline function arcaneNS(obj : away3dlite.cameras.lenses.AbstractLens) : _AbstractLens
+	{
+		return obj;
+	}
+}
+
+#if (haxe_205 && flash9) extern #end class _MaterialArcane
 {
 	public static inline function arcaneNS(obj : away3dlite.materials.Material) : _Material
 	{
@@ -13,7 +29,7 @@ package away3dlite.namespace;
 	}
 }
 
-#if haxe_205 extern #end class _Sprite3DArcane
+#if (haxe_205 && flash9) extern #end class _Sprite3DArcane
 {
 	public static inline function arcaneNS(obj : away3dlite.sprites.Sprite3D) : _Sprite3D
 	{
@@ -21,7 +37,7 @@ package away3dlite.namespace;
 	}
 }
 
-#if haxe_205 extern #end class _RendererArcane
+#if (haxe_205 && flash9) extern #end class _RendererArcane
 {
 	public static inline function arcaneNS(obj : away3dlite.core.render.Renderer) : _Renderer
 	{
@@ -29,7 +45,7 @@ package away3dlite.namespace;
 	}
 }
 
-#if haxe_205 extern #end class _ClippingArcane
+#if (haxe_205 && flash9) extern #end class _ClippingArcane
 {
 	public static inline function arcaneNS(obj : away3dlite.core.clip.Clipping) : _Clipping
 	{
@@ -42,7 +58,7 @@ package away3dlite.namespace;
 	}
 }
 
-#if haxe_205 extern #end class _View3DArcane
+#if (haxe_205 && flash9) extern #end class _View3DArcane
 {
 	public static inline function arcaneNS(obj : away3dlite.containers.View3D) : _View3D
 	{
@@ -50,7 +66,7 @@ package away3dlite.namespace;
 	}
 }
 
-#if haxe_205 extern #end class _AbstractPrimitiveArcane
+#if (haxe_205 && flash9) extern #end class _AbstractPrimitiveArcane
 {
 	public static inline function arcaneNS(obj : away3dlite.loaders.AbstractParser) : _AbstractParser
 	{
@@ -58,15 +74,20 @@ package away3dlite.namespace;
 	}
 }
 
-#if haxe_205 extern #end class _Camera3DArcane
+#if (haxe_205 && flash9) extern #end class _Camera3DArcane
 {
 	public static inline function arcaneNS(obj : away3dlite.cameras.Camera3D) : _Camera3D
 	{
 		return obj;
 	}
+	
+	public static inline function arcane_ns	(obj : away3dlite.cameras.Camera3D) : _Camera3D
+	{
+		return obj;
+	}
 }
 
-#if haxe_205 extern #end class _AbstractParserArcane
+#if (haxe_205 && flash9) extern #end class _AbstractParserArcane
 {
 	public static inline function arcaneNS(obj : away3dlite.loaders.AbstractParser) : _AbstractParser
 	{
@@ -74,15 +95,20 @@ package away3dlite.namespace;
 	}
 }
 
-#if haxe_205 extern #end class _Scene3DArcane
+#if (haxe_205 && flash9) extern #end class _Scene3DArcane
 {
 	public static inline function arcaneNS(obj : away3dlite.containers.Scene3D) : _Scene3D
 	{
 		return obj;
 	}
+	
+	public static inline function arcane_ns(obj : away3dlite.containers.Scene3D) : _Scene3D
+	{
+		return obj;
+	}
 }
 
-#if haxe_205 extern #end class _ObjectContainer3DArcane
+#if (haxe_205 && flash9) extern #end class _ObjectContainer3DArcane
 {
 	public static inline function arcaneNS(obj : away3dlite.containers.ObjectContainer3D) : _ObjectContainer3D
 	{
@@ -90,7 +116,7 @@ package away3dlite.namespace;
 	}
 }
 
-#if haxe_205 extern #end class _MeshArcane
+#if (haxe_205 && flash9) extern #end class _MeshArcane
 {
 	public static inline function arcaneNS(obj : away3dlite.core.base.Mesh) : _Mesh
 	{
@@ -103,7 +129,7 @@ package away3dlite.namespace;
 	}
 }
 
-#if haxe_205 extern #end class _Object3DArcane
+#if (haxe_205 && flash9) extern #end class _Object3DArcane
 {
 	public static inline function arcaneNS(obj : away3dlite.core.base.Object3D) : _Object3D
 	{
@@ -114,18 +140,45 @@ package away3dlite.namespace;
 
 
 import away3dlite.cameras.Camera3D;
+import away3dlite.cameras.lenses.AbstractLens;
 import away3dlite.containers.Scene3D;
 import away3dlite.containers.View3D;
 import away3dlite.core.base.Mesh;
 import away3dlite.core.clip.Clipping;
 import away3dlite.events.ParserEvent;
+import away3dlite.lights.AbstractLight3D;
 import away3dlite.materials.Material;
+import flash.display.DisplayObject;
 import flash.display.GraphicsTrianglePath;
 import flash.display.Sprite;
 import flash.geom.Matrix3D;
 import away3dlite.core.base.Face;
 import flash.Vector;
 import flash.display.TriangleCulling;
+
+private typedef _AbstractLight3D = {
+	/** @private */
+	/*arcane*/ private var _red:Float;
+	/** @private */
+	/*arcane*/ private var _green:Float;
+	/** @private */
+	/*arcane*/ private var _blue:Float;
+	/** @private */
+	/*arcane*/ private var _camera:Camera3D;
+}
+
+private typedef _AbstractLens = {
+	/** @private */
+	/**arcane**/ private var _view:View3D;
+	/** @private */
+	/**arcane**/ private var _root:DisplayObject;
+	/** @private */
+	/**arcane**/ private var _camera:Camera3D;
+	/** @private */
+	/**arcane**/ private var _projectionMatrix3D:Matrix3D;		
+	/** @private */
+	/**arcane**/ private function _update():Void;
+}
 
 private typedef _Material = {
 	/** @private */
@@ -136,6 +189,8 @@ private typedef _Material = {
 	/*arcane*/ private function notifyActivate(scene:Scene3D):Void;
 	/** @private */
 	/*arcane*/ private function notifyDeactivate(scene:Scene3D):Void;
+	/** @private */
+	/*arcane*/ private function updateMaterial(source:Mesh, camera:Camera3D):Void;
 }
 
 private typedef _Sprite3D = {
@@ -202,9 +257,10 @@ private typedef _AbstractParser =
 	/*arcane*/ private function parseNext():Void;
 }
 
-
 private typedef _Object3D =
 {
+	/** @private */
+	/*arcane*/ private var _perspCulling:Bool;
 	/** @private */
 	/*arcane*/ private var _screenZ:Float;
 	/** @private */
@@ -270,15 +326,27 @@ private typedef _Scene3D =
 	/** @private */
 	/*arcane*/ private var _materialsNextList:Vector<Material>;
 	/** @private */
+	/*arcane*/ private var _sceneLights:Vector<AbstractLight3D>;
+	/** @private */
 	/*arcane*/ private function removeSceneMaterial(mat:Material):Void;
 	/** @private */
 	/*arcane*/ private function addSceneMaterial(mat:Material):Void;
+	/** @private */
+	/*arcane*/ private function addSceneLight(light:AbstractLight3D):Void;
+	/** @private */
+	/*arcane*/ private function removeSceneLight(light:AbstractLight3D):Void;
 }
 
 private typedef _Camera3D = {
 	>_Object3D,
 	/** @private */
 	/*arcane*/ private var _view:View3D;
+	/** @private */
+	/*arcane*/ private var _lens:AbstractLens;
+	/*arcane*/ private var _invSceneMatrix3D:Matrix3D;
+	/*arcane*/ private var _projectionMatrix3D:Matrix3D;
+	/*arcane*/ private var _screenMatrix3D:Matrix3D;
+	
 	/*arcane*/ private function update():Void;
 }
 

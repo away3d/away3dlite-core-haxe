@@ -666,10 +666,13 @@ class AwayStats extends Sprite
 			_num_frames = 0;
 			_fps_sum = 0;
 			
-			i = -1;
-			while (++i < _mean_data.length)
+			if (_mean_data != null)
 			{
-				_mean_data[i] = 0.0;
+				i = -1;
+				while (++i < _mean_data.length)
+				{
+					_mean_data[i] = 0.0;
+				}
 			}
 		}
 	}

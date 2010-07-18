@@ -12,6 +12,7 @@ import flash.Lib;
 import flash.Vector;
 
 //use namespace arcane;
+using away3dlite.namespace.Arcane;
 
 /**
  * Dispatched when a user moves the cursor while it is over the 3d object.
@@ -68,6 +69,8 @@ import flash.Vector;
 class Object3D extends Sprite
 {
 	/** @private */
+	/*arcane*/ private var _perspCulling:Bool;
+	/** @private */
 	/*arcane*/ private var _screenZ:Float;
 	/** @private */
 	/*arcane*/ private var _scene:Scene3D;
@@ -90,9 +93,17 @@ class Object3D extends Sprite
 			_sceneMatrix3D.append(parentSceneMatrix3D);
 			
 		_viewMatrix3D.rawData = _sceneMatrix3D.rawData;
-		_viewMatrix3D.append(camera.screenMatrix3D);
+		_viewMatrix3D.append(camera.arcane_ns()._screenMatrix3D);
 		
 		_screenZ = _viewMatrix3D.position.z;
+		
+		//perspective culling
+		var persp:Float = camera.zoom / (1 + _screenZ / camera.focus);
+		
+		if (minPersp != maxPersp && (persp < minPersp || persp >= maxPersp))
+			_perspCulling = true;
+		else
+			_perspCulling = false;
 	}
 	
 	private function copyMatrix3D(m1:Matrix3D, m2:Matrix3D):Void
@@ -129,7 +140,17 @@ class Object3D extends Sprite
 	/**
 	 * Returns the source url of the 3d object, or the name of the family of generative geometry objects if not loaded from an external source.
 	 */
-	public var url:String;
+	public var url:String;	
+		
+	/**
+	 * The maximum perspective value from which the 3d object can be viewed.
+	 */
+	public var maxPersp:Float;
+	
+	/**
+	 * The minimum perspective value from which the 3d object can be viewed.
+	 */
+	public var minPersp:Float;
 	
 	/**
 	 * <i>haXe specific</i> : Height property must be called as _height, due to haXe limitation.
@@ -201,12 +222,136 @@ class Object3D extends Sprite
 		_sceneMatrix3D = new Matrix3D();
 		
 		_screenZ = 0;
+		minPersp = maxPersp = 0;
 		materialLibrary = new MaterialLibrary();
 		geometryLibrary = new GeometryLibrary();
 		animationLibrary = new AnimationLibrary();
 		
 		//enable for 3d calculations
 		transform.matrix3D = new Matrix3D();
+	}
+	
+
+	/**
+	 * Moves the 3D object forwards along it's local z axis
+	 *
+	 * @param	distance	The length of the movement
+	 */
+	public function moveForward(distance:Float):Void
+	{
+		translate(new Vector3D(0, 0, 1), distance);
+	}
+
+	/**
+	 * Moves the 3D object backwards along it's local z axis
+	 *
+	 * @param	distance	The length of the movement
+	 */
+	public function moveBackward(distance:Float):Void
+	{
+		translate(new Vector3D(0, 0, -1), distance);
+	}
+
+	/**
+	 * Moves the 3D object backwards along it's local x axis
+	 *
+	 * @param	distance	The length of the movement
+	 */
+	public function moveLeft(distance:Float):Void
+	{
+		translate(new Vector3D(-1, 0, 0), distance);
+	}
+
+	/**
+	 * Moves the 3D object forwards along it's local x axis
+	 *
+	 * @param	distance	The length of the movement
+	 */
+	public function moveRight(distance:Float):Void
+	{
+		translate(new Vector3D(1, 0, 0), distance);
+	}
+
+	/**
+	 * Moves the 3D object forwards along it's local y axis
+	 *
+	 * @param	distance	The length of the movement
+	 */
+	public function moveUp(distance:Float):Void
+	{
+		translate(new Vector3D(0, -1, 0), distance);
+	}
+
+	/**
+	 * Moves the 3D object backwards along it's local y axis
+	 *
+	 * @param	distance	The length of the movement
+	 */
+	public function moveDown(distance:Float):Void
+	{
+		translate(new Vector3D(0, 1, 0), distance);
+	}
+
+	/**
+	 * Moves the 3D object along a vector by a defined length
+	 *
+	 * @param	axis		The vector defining the axis of movement
+	 * @param	distance	The length of the movement
+	 */
+	public function translate(axis:Vector3D, distance:Float):Void
+	{
+		axis.normalize();
+		
+		var _matrix3D:Matrix3D = transform.matrix3D;
+		
+		axis.scaleBy(distance);
+		
+		_matrix3D.position = _matrix3D.transformVector(axis);
+	}
+
+	/**
+	 * Rotates the 3D object around it's local x-axis
+	 *
+	 * @param	degrees		The degree of the rotation.
+	 */
+	public function pitch(degrees:Float):Void
+	{
+		rotate(degrees, Vector3D.X_AXIS);
+	}
+
+	/**
+	 * Rotates the 3D object around it's local y-axis
+	 *
+	 * @param	degrees		The degree of the rotation.
+	 */
+	public function yaw(degrees:Float):Void
+	{
+		rotate(degrees, Vector3D.Y_AXIS);
+	}
+
+	/**
+	 * Rotates the 3D object around it's local z-axis
+	 *
+	 * @param	degrees		The degree of the rotation.
+	 */
+	public function roll(degrees:Float):Void
+	{
+		rotate(degrees, Vector3D.Z_AXIS);
+	}
+
+	/**
+	 * Rotates the 3D object around an axis by a defined degrees
+	 *
+	 * @param	degrees		The degree of the rotation.
+	 * @param	axis		The axis or direction of rotation. The usual axes are the X_AXIS (Vector3D(1,0,0)), Y_AXIS (Vector3D(0,1,0)), and Z_AXIS (Vector3D(0,0,1)).
+	 * @param	pivotPoint	A point that determines the center of an object's rotation. The default pivot point for an object is its registration point.
+	 */
+	public function rotate(degrees:Float, axis:Vector3D, ?pivotPoint:Vector3D = null):Void
+	{
+		axis.normalize();
+
+		var _matrix3D:Matrix3D = transform.matrix3D;
+		_matrix3D.appendRotation(degrees, _matrix3D.deltaTransformVector(axis), pivotPoint);
 	}
 	
 	/**
@@ -217,14 +362,12 @@ class Object3D extends Sprite
 	 */
 	public function lookAt(target:Vector3D, ?upAxis:Vector3D):Void
 	{
-		//HAXE
-		//OPTIMIZE
 		var tmp = (upAxis != null) ? upAxis : new Vector3D(0, -1, 0);
 		transform.matrix3D.pointAt(target, Vector3D.Z_AXIS, tmp);
 	}
 	
 	/**
-	 * Duplicates the 3d object's properties to another <code>Object3D</code> object
+	 * Duplicates the 3D object's properties to another <code>Object3D</code> object
 	 * 
 	 * @param	object	[optional]	The new object instance into which all properties are copied
 	 * @return						The new object instance with duplicated properties applied

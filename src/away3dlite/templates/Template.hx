@@ -3,6 +3,7 @@ package away3dlite.templates;
 import away3dlite.cameras.Camera3D;
 import away3dlite.containers.Scene3D;
 import away3dlite.containers.View3D;
+import away3dlite.debug.AwayStats;
 import flash.display.Sprite;
 import flash.events.Event;
 import flash.filters.GlowFilter;
@@ -12,15 +13,13 @@ import flash.display.StageQuality;
 import flash.text.TextFormat;
 import flash.text.TextFieldAutoSize;
 
-import net.hires.debug.Stats;
-
 /**
  * SimpleView
  * @author katopz
  */
 class Template extends Sprite
 {
-	private var stats:Stats;
+	private var stats:AwayStats;
 	private var debugText:TextField;
 	private var _title:String;
 	private var _debug:Bool;
@@ -70,7 +69,7 @@ class Template extends Sprite
 		addChild(view);
 		
 		//init stats panel
-		stats = new Stats();
+		stats = new AwayStats();
 		
 		//add stats to the displaylist
 		addChild(stats);
@@ -82,7 +81,7 @@ class Template extends Sprite
 		debugText.mouseWheelEnabled = false;
 		debugText.defaultTextFormat = new TextFormat("Tahoma", 12, 0x000000);
 		debugText.autoSize = TextFieldAutoSize.LEFT;
-		debugText.x = 80;
+		debugText.x = 140;
 		debugText.textColor = 0xFFFFFF;
 		debugText.filters = [new GlowFilter(0x000000, 1, 4, 4, 2, 1)];
 		

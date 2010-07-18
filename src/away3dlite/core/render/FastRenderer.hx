@@ -26,6 +26,9 @@ class FastRenderer extends Renderer
 	
 	private function collectFaces(object:Object3D):Void
 	{
+		if (!object.visible)
+			return;
+		
 		_mouseEnabledArray.push(_mouseEnabled);
 		_mouseEnabled = object.arcaneNS()._mouseEnabled = (_mouseEnabled && object.mouseEnabled);
 		

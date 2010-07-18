@@ -4,7 +4,7 @@ import away3dlite.containers.ObjectContainer3D;
 /**
  * Data class for 3d object containers.
  */
-class ContainerData extends ObjectData
+class ContainerData extends MeshData
 {
 	/**
 	 * An array containing the child 3d objects of the container.

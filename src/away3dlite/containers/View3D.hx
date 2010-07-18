@@ -54,7 +54,7 @@ class View3D extends Sprite
 	}
 	
 	private static inline var VERSION:String = "1";
-	private static inline var REVISION:String = "0.2";
+	private static inline var REVISION:String = "0.4";
 	private static inline var APPLICATION_NAME:String = "Away3D.com";
 	
 	private var _customContextMenu:ContextMenu;
@@ -210,7 +210,7 @@ class View3D extends Sprite
 		for (tar in array) {
 			tar.dispatchEvent(event);
 			if (overFlag)
-				buttonMode = buttonMode || tar.useHandCursor;
+				buttonMode = tar.useHandCursor;
 			else if (buttonMode && tar.useHandCursor)
 				buttonMode = false;
 		}
@@ -227,8 +227,7 @@ class View3D extends Sprite
 			_uvt = _face.calculateUVT(mouseX, mouseY);
 			_material = _face.material;
 			_object = _face.mesh;
-			var persp:Float =  _uvt.z/(camera.zoom*camera.focus);
-			_scenePosition = new Vector3D(mouseX*persp, mouseY*persp, _uvt.z - camera.focus);
+			_scenePosition = camera.lens.unProject(mouseX, mouseY, _uvt.z);
 			_scenePosition = camera.transform.matrix3D.transformVector(_scenePosition);
 		} else {
 			_uvt = null;
@@ -239,6 +238,7 @@ class View3D extends Sprite
 		var event:MouseEvent3D = getMouseEvent(type);
 		var outArray:Array<Object3D> = [];
 		var overArray:Array<Object3D> = [];
+		event.face = _face;
 		event.ctrlKey = ctrlKey;
 		event.shiftKey = shiftKey;
 		

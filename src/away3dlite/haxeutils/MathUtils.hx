@@ -4,7 +4,7 @@
 
 package away3dlite.haxeutils;
 
-class MathUtils 
+class MathUtils
 {
 	public static inline var PI:Float = 3.141592653589793;
 	public static inline var HALF_PI:Float = PI / 2 ;
@@ -50,6 +50,15 @@ class MathUtils
 		return (x < 0) ? ( -x) : x;
 	}
 	
+	public static inline function min(x:Float, y:Float):Float
+	{
+		return (x < y) ? x : y;
+	}
+	
+	public static inline function max(x:Float, y:Float):Float
+	{
+		return (x > y) ? x : y;
+	}
 	
 	/**
 	 * sqrt and invsqrt from quake sources, translated to haXe by Nicolas Cannasse
@@ -82,7 +91,7 @@ class MathUtils
 	
 }
 
-class IntUtils
+#if (haxe_205 && flash9) extern #end class IntUtils
 {
 	//Int operations
 	//From polygonal labs
@@ -90,6 +99,16 @@ class IntUtils
 	public static inline function flipSign(i:Int):Int
 	{
 		return (i ^ -1) + 1;
+	}
+	
+	public static inline function min(x:Int, y:Int):Int
+	{
+		return (x < y) ? x : y;
+	}
+	
+	public static inline function max(x:Int, y:Int):Int
+	{
+		return (x > y) ? x : y;
 	}
 	
 	public static inline function abs(x:Int):Int

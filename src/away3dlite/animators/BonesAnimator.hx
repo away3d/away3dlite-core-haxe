@@ -6,6 +6,7 @@ import away3dlite.animators.bones.SkinController;
 import away3dlite.animators.bones.SkinVertex;
 import away3dlite.containers.ObjectContainer3D;
 import away3dlite.core.utils.Debug;
+import flash.utils.TypedDictionary;
 import flash.Vector;
 
 /**
@@ -19,6 +20,7 @@ class BonesAnimator
 	private var _skinControllers:Vector<SkinController>;
 	private var _skinController:SkinController;
 	private var _skinVertices:Vector<SkinVertex>;
+	private var _uniqueSkinVertices:TypedDictionary<SkinVertex, Int>;
 	private var _skinVertex:SkinVertex;
 	
 	/**
@@ -42,6 +44,7 @@ class BonesAnimator
 		_channels = new Vector<Channel>();
 		_skinControllers = new Vector<SkinController>();
 		_skinVertices = new Vector<SkinVertex>(); 
+		_uniqueSkinVertices = new TypedDictionary<SkinVertex, Int>(true);
 		loop = true;
 		length = 0;
 	}
@@ -68,6 +71,10 @@ class BonesAnimator
 			}
 		}
 		
+		// ensure vertex list is populated
+		if (!_skinVertices.fixed)
+			populateVertices();
+		
 		//update channels
 		for (channel in _channels)
 			channel.update(time, interpolate);
@@ -79,6 +86,18 @@ class BonesAnimator
 		//update skinvertices
 		for (_skinVertex in _skinVertices)
 			_skinVertex.update();
+	}
+	
+	/**
+	 * Populates the skin vertex list from the set of unique vertices
+	 */ 
+	public function populateVertices():Void
+	{
+		_skinVertices.fixed = false;
+		for (skinVertex in _uniqueSkinVertices.keys())
+			_skinVertices.push(skinVertex);
+		
+		_skinVertices.fixed = true;
 	}
 	
 	/**
@@ -95,6 +114,7 @@ class BonesAnimator
 		for (channel in _channels)
 			bonesAnimator.addChannel(channel.clone(object));
 		
+		_skinVertices.fixed = false;
 		return bonesAnimator;
 	}
 	
@@ -117,7 +137,6 @@ class BonesAnimator
 		_skinControllers.push(skinController);
 		
 		for (_skinVertex in skinController.skinVertices)
-			if (_skinVertices.indexOf(_skinVertex) == -1)
-				_skinVertices.push(_skinVertex);
+			_uniqueSkinVertices.set(_skinVertex, 1);
 	}
 }

@@ -2,17 +2,21 @@ package away3dlite.core.base;
 
 import away3dlite.cameras.Camera3D;
 import away3dlite.containers.Scene3D;
+import away3dlite.haxeutils.MathUtils;
 import away3dlite.materials.Material;
 import away3dlite.materials.WireColorMaterial;
 import flash.display.GraphicsTrianglePath;
 import flash.display.TriangleCulling;
 import flash.geom.Matrix3D;
+import flash.geom.Point;
 import flash.geom.Utils3D;
+import flash.geom.Vector3D;
 import flash.Lib;
 import flash.Vector;
 
 //use namespace arcane;
 using away3dlite.namespace.Arcane;
+using away3dlite.haxeutils.HaxeUtils;
 
 /**
  * Basic geometry object
@@ -68,20 +72,24 @@ class Mesh extends Object3D
 		//if (material is IShader)
 		//	_triangles.uvtData = IShader(material).getUVData(transform.matrix3D.clone());
 		
-		//DO NOT CHANGE vertices getter!!!!!!!
-		Utils3D.projectVectors(_viewMatrix3D, vertices, _screenVertices, _uvtData);
-		
-		if (_materialsDirty)
-			buildMaterials();
-		
-		var i:Int = _materialsCacheList.length;
-		var mat:Material;
-		while (i-- != 0) {
-			if ((mat = _materialsCacheList[i]) != null) {
-				//update rendering faces in the scene
-				untyped _scene._materialsNextList[i] = mat;
-				
-				//update material if material is a shader
+		if (!_perspCulling)
+		{
+			//DO NOT CHANGE vertices getter!!!!!!!
+			Utils3D.projectVectors(_viewMatrix3D, vertices, _screenVertices, _uvtData);
+			
+			if (_materialsDirty)
+				buildMaterials();
+			
+			var i:Int = _materialsCacheList.length;
+			var mat:Material;
+			while (i-- != 0) {
+				if ((mat = _materialsCacheList[i]) != null) {
+					//update rendering faces in the scene
+					untyped _scene._materialsNextList[i] = mat;
+					
+					//update material for this object
+					mat.arcaneNS().updateMaterial(this, camera);
+				}
 			}
 		}
 	}
@@ -107,6 +115,8 @@ class Mesh extends Object3D
 		
 		// speed up
 		_vertices.fixed = _uvtData.fixed = _indices.fixed = _faceLengths.fixed = _faces.fixed = _sort.fixed = true;
+		
+		_screenVertices.length = 0;
 		
 		updateSortType();
 		
@@ -320,6 +330,24 @@ class Mesh extends Object3D
 		this.material = material;
 		this.bothsides = false;
 		this.sortType = SortType.CENTER;
+	}
+	
+	public function addFace(vs:Vector<Vector3D>,uvs:Vector<Point>):Void
+	{
+	 var q:Int = IntUtils.min(vs.length, uvs.length);
+	 var i = -1;
+	 while (++i < q)
+	 {
+	   pushV3D(vs[i],uvs[i]);
+	 }
+	 _faceLengths.push(q);
+	}
+	
+	public function pushV3D(v:Vector3D,uv:Point):Void
+	{
+	 _vertices.push3(v.x,v.y,v.z);
+	 _uvtData.push3(uv.x,uv.y,1);
+	 _indices.push(this._indicesTotal++);
 	}
 	
 	/**

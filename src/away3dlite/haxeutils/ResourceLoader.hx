@@ -54,7 +54,7 @@ class ResourceLoader<T>
 				onComplete();
 			}
 		} else {
-			if ((current.type == "DisplayObject") || (current.type == "Sprite") || (current.type == "MovieClip"))
+			if ((current.type == "DisplayObject") || (current.type == "Sprite") || (current.type == "MovieClip") || (current.type == "Bitmap"))
 			{
 				toLoad++;
 				var ld = current.loader = new Loader();

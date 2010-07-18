@@ -16,6 +16,7 @@ using away3dlite.haxeutils.HaxeUtils;
 class Sphere extends AbstractPrimitive
 {
 	private var _radius:Float;
+	private var _arcLength:Float;
 	private var _segmentsW:Int;
 	private var _segmentsH:Int;
 	private var _yUp:Bool;
@@ -29,8 +30,9 @@ class Sphere extends AbstractPrimitive
 		
 		var i:Int;
 		var j:Int;
+		var minJ:Int = Std.int(_segmentsH * (1 - _arcLength));
 		
-		j = -1;
+		j = minJ-1;
 		while (++j <= _segmentsH) { 
 			var horangle:Float = MathUtils.PI*j/_segmentsH;
 			var z:Float = -_radius*Math.cos(horangle);
@@ -48,7 +50,7 @@ class Sphere extends AbstractPrimitive
 			}
 		}
 		j = 0;
-		while (++j <= _segmentsH) {
+		while (++j <= _segmentsH - minJ) {
 			i = 0;
 			while (++i <= _segmentsW) {
 				var a:Int = (_segmentsW + 1)*j + i;
@@ -56,11 +58,11 @@ class Sphere extends AbstractPrimitive
 				var c:Int = (_segmentsW + 1)*(j - 1) + i - 1;
 				var d:Int = (_segmentsW + 1)*(j - 1) + i;
 				
-				if (j == _segmentsH)
+				if (j == _segmentsH - minJ)
 				{
 					_indices.push3(a, c, d);
 					_faceLengths.push(3);
-				} else if (j == 1) {
+				} else if (j == 1 - minJ) {
 					_indices.push3(a, b, c);
 					_faceLengths.push(3);
 				} else {
@@ -69,6 +71,25 @@ class Sphere extends AbstractPrimitive
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Defines the fractional arc of the sphere rendered from the top.
+	 */
+	public var arcLength(get_arcLength, set_arcLength):Float;
+	private inline function get_arcLength():Float
+	{
+		return _arcLength;
+	}
+	
+	private function set_arcLength(val:Float):Float
+	{
+		if (_arcLength == val)
+			return val;
+		
+		_arcLength = val;
+		_primitiveDirty = true;
+		return val;
 	}
 	
 	/**
@@ -159,6 +180,7 @@ class Sphere extends AbstractPrimitive
 		//_segmentsW = 8;
 		//_segmentsH = 6;
 		//_yUp = true;
+		_arcLength = 1;
 		
 		_radius = radius;
 		_segmentsW = segmentsW;
@@ -184,6 +206,7 @@ class Sphere extends AbstractPrimitive
 		sphere.segmentsH = _segmentsH;
 		sphere.yUp = _yUp;
 		sphere._primitiveDirty = false;
+		sphere.arcLength = _arcLength;
 		
 		return sphere;
 	}

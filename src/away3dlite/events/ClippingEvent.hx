@@ -26,7 +26,7 @@ class ClippingEvent extends Event
 	/**
 	 * Creates a new <code>FaceEvent</code> object.
 	 * 
-	 * @param	type	The type of the event. Possible values are: <code>FaceEvent.UPDATED</code></code>.
+	 * @param	type	The type of the event. Possible values are: <code>FaceEvent.UPDATED</code>.
 	 * @param	clip	A reference to the clipping object that is relevant to the event.
 	 */
 	public function new(type:String, clipping:Clipping)

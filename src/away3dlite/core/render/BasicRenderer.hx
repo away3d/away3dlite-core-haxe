@@ -39,6 +39,9 @@ class BasicRenderer extends Renderer
 	
 	private function collectFaces(object:Object3D):Void
 	{
+		if (!object.visible || object.arcaneNS()._perspCulling)
+			return;
+		
 		_mouseEnabledArray.push(_mouseEnabled);
 		_mouseEnabled = object.arcaneNS()._mouseEnabled = (_mouseEnabled && object.mouseEnabled);
 		

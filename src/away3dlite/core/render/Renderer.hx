@@ -26,7 +26,6 @@ class Renderer
 		_view_graphics_drawGraphicsData = _view.graphics.drawGraphicsData;
 	}
 	
-	private var ql:Vector<Int>;
 	private var k:Int;
 	private var q0:Vector<Int>;
 	private var np0:Vector<Int>;
@@ -85,28 +84,28 @@ class Renderer
 		var _faces_length_1:Int = Std.int(_faces.length + 1);
 		
 		q0 = new Vector<Int>(256, true);
-		ql = new Vector<Int>(256, true);
 		q1 = new Vector<Int>(256, true);
 		np0 = new Vector<Int>(_faces_length_1, true);
 		np1 = new Vector<Int>(_faces_length_1, true);
 		
-		i = -1;
+		i = 0;
 		j = 0;
 		
 		for (_face in _faces)
-			if((q0[k = (255 & (_sort[Std.int(++i)] = _face.calculateScreenZ()))]) != 0)
-				ql[k] = np0[ql[k]] = Std.int(++j);
-			else
-				ql[k] = q0[k] = Std.int(++j);
+		{
+			np0[Std.int(i+1)] = q0[k = (255 & (_sort[i] = _face.calculateScreenZ()))];
+			q0[k] = Std.int(++i);
+		}
 		
-		i = -1;
-		while (Std.int(i++) < 255) {
+		i = 256;
+		while (i-- > 0)
+		{
 			j = q0[i];
-			while (j != 0)
-				if((q1[k = (65280 & _sort[Std.int(j-1)]) >> 8]) != 0)
-						j = np0[ql[k] = np1[ql[k]] = j];
-					else
-						j = np0[ql[k] = q1[k] = j];
+			while (j > 0)
+			{
+				np1[j] = q1[k = (65280 & _sort[Std.int(j-1)]) >> 8];
+				j = np0[q1[k] = j];
+			}
 		}
 	}
 	

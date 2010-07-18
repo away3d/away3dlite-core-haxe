@@ -25,6 +25,11 @@ class ChannelData
 	 */
 	public var xml:XML;
 	
+	/**
+	 * The index of the channel inside the XML structure (in case there's more than 1 channel)
+	 */
+	public var channelIndex:Int;
+	
 	public function new()
 	{
 		

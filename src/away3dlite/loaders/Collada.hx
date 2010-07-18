@@ -27,9 +27,9 @@ import flash.geom.Matrix3D;
 import flash.geom.Vector3D;
 import flash.Lib;
 import flash.utils.Dictionary;
+import flash.Vector;
 import flash.xml.XML;
 import flash.xml.XMLList;
-import flash.Vector;
 
 //use namespace arcane;
 using away3dlite.namespace.Arcane;
@@ -55,18 +55,22 @@ class Collada extends AbstractParser
 	private var _defaultAnimationClip:AnimationData;
 	private var _haveClips:Bool;
 	private var _containers:Hash<Object3D>;
-	private var _skinControllers:Hash<SkinController>;
+	private var _skinControllers:Vector<SkinController>;
 	private var _skinController:SkinController;
 	
-	private function buildContainers(containerData:ContainerData, parent:ObjectContainer3D):Void
+	public var bothsides:Bool;
+	public var useIDAsName:Bool;
+	
+	private function buildContainers(containerData:ContainerData, parent:ObjectContainer3D, depth:Int):Void
 	{
-		Debug.trace(" + Build Container : " + containerData.name);
+		var spaces = "";
+		for (s in 0...depth)
+			spaces += " ";
+		
+		Debug.trace(" + Build Container : " + spaces + containerData.name);
 		
 		for (_objectData in containerData.children) {
-			if (FastStd.is(_objectData, MeshData)) {
-				var mesh:Mesh = buildMesh(Lib.as(_objectData, MeshData), parent);
-				_containers.set(_objectData.name, mesh);
-			} else if (FastStd.is(_objectData, BoneData)) {
+			if (FastStd.is(_objectData, BoneData)) {
 				var _boneData:BoneData = Lib.as(_objectData, BoneData);
 				var bone:Bone = new Bone();
 				bone.name = _boneData.name;
@@ -81,7 +85,7 @@ class Collada extends AbstractParser
 				
 				bone.joint.transform.matrix3D = _boneData.jointTransform;
 				
-				buildContainers(_boneData, bone.joint);
+				buildContainers(_boneData, bone.joint, depth+1);
 				
 				parent.addChild(bone);
 				
@@ -90,11 +94,15 @@ class Collada extends AbstractParser
 				var objectContainer:ObjectContainer3D = _containerData.container = new ObjectContainer3D();
 				objectContainer.name = _containerData.name;
 				
-				_containers.set(objectContainer.name, objectContainer);
-				
 				objectContainer.transform.matrix3D = _objectData.transform;
 				
-				buildContainers(_containerData, objectContainer);
+				if (_objectData.downcast(ContainerData).geometry != null)
+				{
+					fillMesh(Lib.as(objectContainer, Mesh), Lib.as(_objectData, MeshData), parent);
+					_containers.set(_objectData.name, objectContainer);
+				}
+				
+				buildContainers(_containerData, objectContainer, depth+1);
 				
 				//TODO: set bounding values (max/min) on _containerData objects
 				if (centerMeshes && objectContainer.children.length != 0) {
@@ -108,23 +116,39 @@ class Collada extends AbstractParser
 						objectContainer.children[i].y -= _moveVector.y;
 						objectContainer.children[i].z -= _moveVector.z;
 					}
-					_moveVector = objectContainer.transform.matrix3D.transformVector(_moveVector);
-					objectContainer.x += _moveVector.x;
-					objectContainer.y += _moveVector.y;
-					objectContainer.z += _moveVector.z;
+					//_moveVector = objectContainer.transform.matrix3D.transformVector(_moveVector);
+					//objectContainer.x += _moveVector.x;
+					//objectContainer.y += _moveVector.y;
+					//objectContainer.z += _moveVector.z;
 				}
 				
 				parent.addChild(objectContainer);
 				
+			} else if (Std.is(_objectData, MeshData))
+			{
+				var mesh:Mesh = buildMesh(Lib.as(_objectData, MeshData), parent, depth + 1);
+				_containers.set(_objectData.name, mesh);
+				
+				parent.addChild(mesh);
 			}
 		}
 	}
 	
-	private function buildMesh(_meshData:MeshData, parent:ObjectContainer3D):Mesh
+	private function buildMesh(_meshData:MeshData, parent:ObjectContainer3D, depth:Int):Mesh
 	{
-		Debug.trace(" + Build Mesh : "+_meshData.name);
+		var spaces = "";
+		for (s in 0...depth)
+			spaces += " ";
+		
+		Debug.trace(" + Build Mesh : "+ spaces +_meshData.name);
 		
 		var mesh:Mesh = new Mesh();
+		fillMesh(mesh, _meshData, parent);
+		return mesh;
+	}
+	
+	private function fillMesh(mesh:Mesh, _meshData:MeshData, parent:ObjectContainer3D):Void
+	{
 		mesh.name = _meshData.name;
 		mesh.transform.matrix3D = _meshData.transform;
 		mesh.bothsides = _meshData.geometry.bothsides;
@@ -204,15 +228,10 @@ class Collada extends AbstractParser
 				mesh.arcaneNS()._vertices[k*3+1] -= _moveVector.y;
 				mesh.arcaneNS()._vertices[k*3+2] -= _moveVector.z;
 			}
-			_moveVector = mesh.transform.matrix3D.transformVector(_moveVector);
-			mesh.x += _moveVector.x;
-			mesh.y += _moveVector.y;
-			mesh.z += _moveVector.z;
+			mesh.transform.matrix3D.appendTranslation(_moveVector.x, _moveVector.y, _moveVector.z);
 		}
 		
 		mesh.type = ".Collada";
-		parent.addChild(mesh);
-		return mesh;
 	}
 	
 	private function buildSkinVertices(geometryData:GeometryData, i:Int, vertices:Vector<Float>):Void
@@ -464,9 +483,10 @@ class Collada extends AbstractParser
 		_moveVector = new Vector3D();
 		_haveClips = false;
 		_containers = new Hash<Object3D>();
-		untyped _containers.h = new Dictionary(true);
-		_skinControllers = new Hash<SkinController>();
-		untyped _skinControllers.h = new Dictionary(true);
+			untyped _containers.h = new Dictionary(true);
+		_skinControllers = new Vector<SkinController>();
+		useIDAsName = true;
+		bothsides = true;
 		
 		scaling = 1;
 		
@@ -488,7 +508,15 @@ class Collada extends AbstractParser
 	/** @private */
 	/*arcane*/ private override function prepareData(data:Dynamic):Void
 	{
-		collada = Cast.xml(data);
+		try
+		{
+			collada = Cast.xml(data);
+		} catch (e:Dynamic)
+		{
+			Debug.warning("Junk byte!?");
+			var _pos = data.downcast(String).indexOf("</COLLADA>");
+			collada = new XML(Std.string(data).substr(0, _pos + "</COLLADA>".length));
+		}
 		
 		//default xml namespace = collada.namespace();
 		collada = collada.removeNamespaces();
@@ -516,7 +544,7 @@ class Collada extends AbstractParser
 			buildMaterials();
 			
 			//build the containers
-			buildContainers(containerData, Lib.as(container, ObjectContainer3D) );
+			buildContainers(containerData, Lib.as(container, ObjectContainer3D), 0 );
 			
 			//build animations
 			buildAnimations();
@@ -574,7 +602,7 @@ class Collada extends AbstractParser
 			if ((node._("@type").toString()) == "JOINT")
 				_objectData = new BoneData();
 			else {
-				if ((node._("instance_node")._("@url").toString()) == "" && ((node._("node").toString()) == "" || FastStd.is(parent, BoneData)))
+				if ((node._("instance_node")._("@url").toString()) == "" && ((node._("node").toString()) == ""))
 					return;
 				_objectData = new ContainerData();
 			}
@@ -582,22 +610,22 @@ class Collada extends AbstractParser
 			_objectData = new MeshData();
 		}
 		
-		parent.children.push(_objectData);
-		
 		//ColladaMaya 3.05B
 		if ((node._("@type").toString()) == "JOINT")
 			_objectData.id = node._("@sid").toString();
 		else
 			_objectData.id = node._("@id").toString();
 		
-		//ColladaMaya 3.02
+		/*Deprecrated for ColladaMaya 3.02
 		if((node._("@name").toString()) != "")
 		{
 			_objectData.name = (node._("@name").toString());
 		}else{
 			_objectData.name = (node._("@id").toString());
-		}
-
+		}*/
+		
+		_objectData.name = node._("@id").toString();
+		
 		_transform = _objectData.transform;
 		
 		Debug.trace(" + Parse Node : " + _objectData.id + " : " + _objectData.name);
@@ -612,17 +640,18 @@ class Collada extends AbstractParser
 		
 		for (childNode in node.children())
 		{
-			arrayChild = getArray(childNode.toString());
 			nodeName = (childNode.name().localName);
 			switch(nodeName)
 			{
 				case "translate":
+					arrayChild = getArray(childNode.toString());
 					if (yUp)
 						_transform.prependTranslation(-arrayChild[0]*scaling, -arrayChild[1]*scaling, arrayChild[2]*scaling);
 					else
 						_transform.prependTranslation(arrayChild[0]*scaling, -arrayChild[2]*scaling, arrayChild[1]*scaling);
 
 				case "rotate":
+					arrayChild = getArray(childNode.toString());
 					sid = childNode._("@sid").toString();
 					if (FastStd.is(_objectData, BoneData) && (sid == "rotateX" || sid == "rotateY" || sid == "rotateZ" || sid == "rotX" || sid == "rotY" || sid == "rotZ")) {
 						if (yUp) {
@@ -639,6 +668,11 @@ class Collada extends AbstractParser
 					}
 					
 				case "scale":
+					arrayChild = getArray(childNode.toString());
+					if (arrayChild[0] == 0)	arrayChild[0] = 1;
+					if (arrayChild[1] == 0)	arrayChild[1] = 1;
+					if (arrayChild[2] == 0)	arrayChild[2] = 1;
+					
 					if ( FastStd.is(_objectData, BoneData) ) {
 						if (yUp)
 							boneData.jointTransform.prependScale(arrayChild[0], arrayChild[1], arrayChild[2]);
@@ -653,6 +687,7 @@ class Collada extends AbstractParser
 					
 				// Baked transform matrix
 				case "matrix":
+					arrayChild = getArray(childNode.toString());
 					var m:Matrix3D = new Matrix3D();
 					m.rawData = array2matrix(arrayChild, yUp, scaling);
 					_transform.prepend(m);
@@ -660,9 +695,20 @@ class Collada extends AbstractParser
 				case "node":
 					//3dsMax 11 - Feeling ColladaMax v3.05B
 					//<node><node/></node>
-					if(FastStd.is(_objectData, MeshData))
+					if(FastStd.is(_objectData, MeshData) && !(FastStd.is(_objectData, ContainerData)))
 					{
-						parseNode(childNode, Lib.as(parent, ContainerData));
+						//parseNode(childNode, Lib.as(parent, ContainerData));
+						//WRONG: parseNode(childNode, parent as ContainerData);
+						
+						// _objectData is a Mesh but ALSO a container!!!
+						// WE MUST preserve the hierarchy because if animation is applied onto the mesh _objectData
+						// then its children must apply this animation too.
+						// We could use the fact that an ObjectContainer3D is also a Mesh, but on the loader side
+						// ContainerData doesn't derive from MeshData.
+						// So I have added this missing derivative to ContainerData class.
+						var fooContainer:ContainerData = new ContainerData();
+						_objectData.clone(Lib.as(fooContainer, MeshData));
+						_objectData = fooContainer;
 					}else{
 						parseNode(childNode, Lib.as(_objectData, ContainerData));
 					}
@@ -696,6 +742,8 @@ class Collada extends AbstractParser
 					Lib.as(_objectData, MeshData).skeleton = getId(childNode._("skeleton"));
 			}
 		}
+		
+		parent.children.push(_objectData);
 	}
 	
 	/**
@@ -835,6 +883,9 @@ class Collada extends AbstractParser
 			geometryData.bothsides = (geometryData.geoXML._("extra")._("technique")._("double_sided")[0].toString() == "1");
 		else
 			geometryData.bothsides = false;
+			
+		// force bothsides by script
+		geometryData.bothsides = geometryData.bothsides && bothsides;
 		
 		//parse controller
 		if (geometryData.ctrlXML == null)
@@ -873,7 +924,7 @@ class Collada extends AbstractParser
 			geometryData.skinControllers.push(skinController = new SkinController());
 			skinController.name = name;
 			skinController.bindMatrix = matrix;
-			_skinControllers.set(name, skinController);
+			_skinControllers.push(skinController);
 			i = i + 16;
 		}
 		
@@ -935,32 +986,68 @@ class Collada extends AbstractParser
 		
 		var _channel_id:UInt = 0;
 		
-		//loop through all animation channels
-		if(anims._("animation")._("animation").length()==0)
-		for (channel in anims._("animation"))
+		//loop through all animations and for each through all its channels
+		var _channelName:String;
+		var _channels:XMLList;
+		var channelIndex:Int;
+		var id:String;
+		var type:String;
+		if (anims._("animation")._("animation").length() == 0)
 		{
-			if((channel._("@id").toString()).length>0)
+			for (animation in anims._("animation"))
 			{
-				channelLibrary.addChannel(channel._("@id").toString(), channel);
-			}else{
-				// COLLADAMax NextGen;  Version: 1.1.0;  Platform: Win32;  Configuration: Release Max2009
-				// issue#1 : missing channel.@id -> use automatic id instead
-				Debug.trace(" ! COLLADAMax2009 id : _"+_channel_id);
-				channelLibrary.addChannel("_"+FastStd.string(_channel_id++), channel);
+				if((animation._("@id").toString()).length>0)
+				{
+					_channelName = animation._("@id").toString();
+				}else{
+					// COLLADAMax NextGen;  Version: 1.1.0;  Platform: Win32;  Configuration: Release Max2009
+					// issue#1 : missing channel.@id -> use automatic id instead
+					Debug.trace(" ! COLLADAMax2009 id : _"+_channel_id);
+					_channelName = "_"+FastStd.string(_channel_id++);
+				}
+				
+				
+				_channels = animation._("channel");
+				if (_channels.length() == 1)
+					channelLibrary.addChannel(_channelName, animation, 0);
+				else
+				{
+					for (channelIndex in 0..._channels.length())
+					{
+						id = _channels[channelIndex]._("@target").toString();
+						type = id.split("/")[1];
+						
+						channelLibrary.addChannel(_channelName + "_subAnim_" + type, animation, channelIndex);
+					}
+				}
 			}
 		}
 
 		// C4D 
 		// issue#1 : animation -> animation.animation
 		// issue#2 : missing channel.@id -> use automatic id instead
-		for (channel in anims._("animation")._("animation"))
+		for (animation in anims._("animation")._("animation"))
 		{
-			if((channel._("@id").toString()).length > 0)
+			if((animation._("@id").toString()).length > 0)
 			{
-				channelLibrary.addChannel(channel._("@id").toString(), channel);
+				_channelName = animation._("@id").toString();
 			}else{
 				Debug.trace(" ! C4D id : _"+_channel_id);
-				channelLibrary.addChannel("_"+FastStd.string(_channel_id++), channel);
+				_channelName = "_" + FastStd.string(_channel_id++);
+			}
+			
+			_channels = animation._("channel");
+			if (_channels.length() == 1)
+				channelLibrary.addChannel(_channelName, animation, 0);
+			else
+			{
+				for (channelIndex in 0..._channels.length())
+				{
+					id = _channels[channelIndex]._("@target").toString();
+					type = id.split("/")[1];
+					
+					channelLibrary.addChannel(_channelName + "_subAnim_" + type, animation, channelIndex);
+				}
 			}
 		}
 				
@@ -986,6 +1073,7 @@ class Collada extends AbstractParser
 	{
 		var animationClip:AnimationData = animationLibrary.addAnimation(clip._("@id").toString());
 		
+		//TODO: Is there a need to handle case where there is multiple channels inside an animation channel (_subAnim_) ?
 		for (channel in clip._("instance_animation"))
 			animationClip.channels.set(getId(channel._("@url")), channelLibrary.get(getId(channel._("@url")) ));
 	}
@@ -993,10 +1081,12 @@ class Collada extends AbstractParser
 	private function parseChannel(channelData:ChannelData) : Void
 	{
 		var node:XML = channelData.xml;
-		var id:String = node._("channel")._("@target").toString();
+		var channels:XMLList = node._("channel");
+		var channelChunk:XML = channels[channelData.channelIndex];
+		var id:String =  channelChunk._("@target").toString();
 		var name:String = id.split("/")[0];
 		var type:String = id.split("/")[1];
-		var sampler:XML = node._("sampler")[0];
+		
 		if (type == null) {
 			Debug.trace(" ! No animation type detected");
 			return;
@@ -1016,9 +1106,6 @@ class Collada extends AbstractParser
 			type = type.split(".").join("");
 		}
 		
-		
-
-		
 		var channel:Channel = channelData.channel = new Channel(name);
 		var i:Int;
 		var j:Int;
@@ -1026,6 +1113,9 @@ class Collada extends AbstractParser
 		_defaultAnimationClip.channels.set(channelData.name, channelData);
 		
 		Debug.trace(" ! channelType : " + type);
+		
+		var sourceName:String = getId(channelChunk._("@source"));
+		var sampler:XML = node._("sampler")._filter_eq("@id", sourceName)[0];
 		
 		for (input in sampler._("input"))
 		{
@@ -1149,7 +1239,11 @@ class Collada extends AbstractParser
 
 			var image:XML = collada._("library_images")._("image")._filter_eq("@id", imageId)[0];
 
-			filename = image._("init_from").toString();
+			//3dsMax 11 - Feeling ColladaMax v3.05B.
+				if(image == null)
+					filename = collada._("library_images")._("image")._("init_from").text().toString();
+				else
+					filename = image._("init_from").toString();
 
 			if (filename.substr(0, 2) == "./")
 			{

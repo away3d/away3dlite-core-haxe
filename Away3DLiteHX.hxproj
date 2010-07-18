@@ -13,8 +13,8 @@
   </output>
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>
-    <class path="debug" />
-    <class path="..\Examples\Away3DLite-dbg\src" />
+    <class path="src" />
+    <class path="..\Examples\Away3DLite\src" />
   </classpaths>
   <!-- Build options -->
   <build>

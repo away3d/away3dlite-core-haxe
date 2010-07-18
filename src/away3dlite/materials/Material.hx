@@ -1,6 +1,8 @@
 package away3dlite.materials;
 
+import away3dlite.cameras.Camera3D;
 import away3dlite.containers.Scene3D;
+import away3dlite.core.base.Mesh;
 import away3dlite.events.MaterialEvent;
 import flash.display.GraphicsBitmapFill;
 import flash.display.GraphicsEndFill;
@@ -58,6 +60,11 @@ class Material extends EventDispatcher
 			_materialdeactivated = new MaterialEvent(MaterialEvent.MATERIAL_DEACTIVATED, this);
 			
 		dispatchEvent(_materialdeactivated);
+	}
+	/** @private */
+	/*arcane*/ private function updateMaterial(source:Mesh, camera:Camera3D):Void
+	{
+		
 	}
 	
 	private static var DEBUG_STROKE:GraphicsStroke = new GraphicsStroke(1, false, "normal", "none", "round", 0, new GraphicsSolidFill(0xFF00FF));

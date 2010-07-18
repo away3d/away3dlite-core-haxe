@@ -1,4 +1,5 @@
 package away3dlite.cameras;
+import away3dlite.cameras.lenses.AbstractLens;
 import away3dlite.core.base.Object3D;
 
 //use namespace arcane;
@@ -32,9 +33,9 @@ class TargetCamera3D extends Camera3D
 	 * @param zoom		Defines the overall scale value of the view.
 	 * @param target	The 3d object targeted by the camera.
 	 */
-	public function new(?focus:Float = 10, ?zoom:Float = 100, ?target:Object3D)
+	public function new(?focus:Float = 10, ?zoom:Float = 100, ?target:Object3D, ?lens:AbstractLens)
 	{
-		super(focus, zoom);
+		super(focus, zoom, lens);
 		
 		this.target = (target != null) ? target : new Object3D();
 	}

@@ -37,7 +37,7 @@ class AWData extends AbstractParser
 		var awdData:String = Cast.string(data);
 		var lines:Array<String> = awdData.split('\n');
 		if(lines.length == 1) lines = awdData.split(String.fromCharCode(13));
-		var trunk:Array<Dynamic>;
+		//var trunk:Array<Dynamic>;
 		var state:String = "";
 		var isMesh:Bool = false;
 		var isMaterial:Bool = false;
@@ -93,13 +93,17 @@ class AWData extends AbstractParser
 							m = new Matrix3D(Lib.vectorOfArray([FastStd.parseFloat(dline[1]),FastStd.parseFloat(dline[2]),FastStd.parseFloat(dline[3]),FastStd.parseFloat(dline[4]),FastStd.parseFloat(dline[5]),FastStd.parseFloat(dline[6]),FastStd.parseFloat(dline[7]),FastStd.parseFloat(dline[8]),FastStd.parseFloat(dline[9]),FastStd.parseFloat(dline[10]),FastStd.parseFloat(dline[11]),FastStd.parseFloat(dline[12]),0,0,0,1]));
 							++buffer;
 					} else {
+							var standardURL:Array<String> = null;
+							if (customPath != "")
+								standardURL = dline[12].split("/");
+							
 							m.position = new Vector3D(FastStd.parseFloat(dline[9]),FastStd.parseFloat(dline[10]),FastStd.parseFloat(dline[11]));
 							oData = {name:(dline[0] == "")? "m_"+id: dline[0] ,
 										transform:m,
 										container:FastStd.parseInt(dline[4]),
 										bothsides:(dline[5] == "true"),
 										sortType: (dline[7] == "false" && dline[8] == "false") ? SortType.CENTER : ( (dline[7] == "true") ? SortType.FRONT : SortType.BACK),
-										material: (isMaterial && dline[12] != null && dline[12] != "") ? ( resolvedP + ( (customPath != "") ? dline[12].substring(7, dline[12].length) : dline[12]) ) : null,
+										material: (isMaterial && dline[12] != null && dline[12] != "") ? ( resolvedP + ( (customPath != "") ?  standardURL[standardURL.length-1] : dline[12]) ) : null,
 										geo: null};
 										
 							objs.push(oData);
@@ -168,7 +172,7 @@ class AWData extends AbstractParser
 				mesh.transform.matrix3D = ref.transform;
 				mesh.sortType = ref.sortType;
 				 
-				mesh.material = (ref.material == null) ? null : new BitmapFileMaterial(ref.material);
+				mesh.material = (ref.material == null) ? null : new BitmapFileMaterial(StringTools.urlDecode(ref.material));
 				
 				if(ref.container != -1 && !isMesh)
 					aC[ref.container].addChild(mesh);
@@ -226,7 +230,7 @@ class AWData extends AbstractParser
 	{
 		var start:Int= 0;
 		var chunk:String;
-		var end:Int = 0;
+		//var end:Int = 0;
 		var dec:String = "";
 		var charcount:Int = str.length;
 		var i = -1;

@@ -2,6 +2,7 @@
 
 package away3dlite.cameras;
 
+import away3dlite.cameras.lenses.AbstractLens;
 import away3dlite.core.base.Object3D;
 
 /**
@@ -72,9 +73,9 @@ class HoverCamera3D extends TargetCamera3D
 	 * @param zoom		Defines the overall scale value of the view.
 	 * @param target	The 3d object targeted by the camera.
 	 */
-	public function new(?zoom:Float = 10, ?focus:Float = 100, ?target:Object3D, ?panAngle:Float = 0, ?tiltAngle:Float = 0, ?distance:Float = 800)
+	public function new(?zoom:Float = 10, ?focus:Float = 100, ?target:Object3D, ?panAngle:Float = 0, ?tiltAngle:Float = 0, ?distance:Float = 800, ?lens:AbstractLens = null)
 	{
-		super(zoom, focus, target);
+		super(zoom, focus, target, lens);
 		
 		_currentPanAngle = 0;
 		_currentTiltAngle = 0;
@@ -138,8 +139,8 @@ class HoverCamera3D extends TargetCamera3D
 		}
 		
 		var gx:Float = target.x + distance*Math.sin(_currentPanAngle*Camera3D.toRADIANS)*Math.cos(_currentTiltAngle*Camera3D.toRADIANS);
-		var gz:Float = target.y + distance*Math.cos(_currentPanAngle*Camera3D.toRADIANS)*Math.cos(_currentTiltAngle*Camera3D.toRADIANS);
-		var gy:Float = target.z - distance*Math.sin(_currentTiltAngle*Camera3D.toRADIANS)*yfactor;
+		var gz:Float = target.z + distance*Math.cos(_currentPanAngle*Camera3D.toRADIANS)*Math.cos(_currentTiltAngle*Camera3D.toRADIANS);
+		var gy:Float = target.y - distance*Math.sin(_currentTiltAngle*Camera3D.toRADIANS)*yfactor;
 		
 		if ((x == gx) && (y == gy) && (z == gz))
 			return false;

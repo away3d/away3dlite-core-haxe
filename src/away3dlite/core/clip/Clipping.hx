@@ -61,10 +61,9 @@ class Clipping extends EventDispatcher
 		_faces = mesh.arcaneNS()._faces;
 		_screenVertices = mesh.arcaneNS()._screenVertices;
 		
-		var i:Int = -1;
 		for (_face in _faces)
 			if (mesh.bothsides || _screenVertices[_face.x0]*(_screenVertices[_face.y2] - _screenVertices[_face.y1]) + _screenVertices[_face.x1]*(_screenVertices[_face.y0] - _screenVertices[_face.y2]) + _screenVertices[_face.x2]*(_screenVertices[_face.y1] - _screenVertices[_face.y0]) > 0)
-				faces[Std.int(++i)] = _face;
+				faces[faces.length] = _face;
 	}
 	/** @private */
 	/*arcane*/ private function screen(container:Sprite, _loaderWidth:Float, _loaderHeight:Float):Clipping

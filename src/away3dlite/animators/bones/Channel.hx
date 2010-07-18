@@ -17,6 +17,14 @@ import flash.Lib;
 	private var _index:Int;
 	private var _length:Int;
 	private var _oldlength:Int;
+	/**
+	 * @private haXe-specific: setter functions cacheing
+	 */
+	private var setFields:Hash<Dynamic>;
+	/**
+	 * @private haXe-specific: know if any changes have ocurred on the channel properties.
+	 */
+	private var lastLen:Int;
 	
 	public var name:String;
 	public var target:Object3D;
@@ -29,9 +37,6 @@ import flash.Lib;
 	
 	public var times:Array<Float>;
 	public var interpolations:Array<Float>;
-	
-	private var setFields:Hash<Dynamic>;
-	private var lastLen:Int;
 	
 	public function new(name:String)
 	{
@@ -77,22 +82,38 @@ import flash.Lib;
 		i = type.length;
 		
 		if (time < times[0]) {
-			while (i-- != 0)
+			while (i-- > 0)
 			{
-				var setField = setFields.get(type[i]);
-				if (setField != null)
-					setField(param[0][i]);
-				else
-					Reflect.setField(target, type[i], param[0][i]);
+				if (type[i] == "transform")
+				{
+					target.transform.matrix3D = param[0][i];
+				} else if (type[i] == "visibility")
+				{
+					target.visible = param[0][i] > 0;
+				} else {
+					var setField = setFields.get(type[i]);
+					if (setField != null)
+						setField(param[0][i]);
+					else
+						Reflect.setField(target, type[i], param[0][i]);
+				}
 			}
 		} else if (time > times[Std.int(times.length - 1)]) {
-			while (i-- != 0)
+			while (i-- > 0)
 			{
-				var setField = setFields.get(type[i]);
-				if (setField != null)
-					setField(param[Std.int(times.length - 1)][i]);
-				else
-					Reflect.setField(target, type[i], param[Std.int(times.length - 1)][i]);
+				if (type[i] == "transform")
+				{
+					target.transform.matrix3D = param[Std.int(times.length - 1)][i];
+				} else if (type[i] == "visibility")
+				{
+					target.visible = param[Std.int(times.length - 1)][i] > 0;
+				} else {
+					var setField = setFields.get(type[i]);
+					if (setField != null)
+						setField(param[Std.int(times.length - 1)][i]);
+					else
+						Reflect.setField(target, type[i], param[Std.int(times.length - 1)][i]);
+				}
 			}
 		} else {
 			_index = _length = _oldlength = times.length - 1;
