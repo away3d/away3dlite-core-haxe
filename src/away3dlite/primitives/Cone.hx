@@ -135,7 +135,7 @@ class Cone extends AbstractPrimitive
 		return __height;
 	}
 	
-	private override function set__height()(val:Float):Float
+	private override function set__height(val:Float):Float
 	{
 		if (__height == val)
 			return val;
