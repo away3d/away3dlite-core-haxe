@@ -36,7 +36,7 @@ class Scene3D extends ObjectContainer3D
 			_materialsSceneList[mat.arcaneNS()._id[_id]] = null;
 			
 			//reduce the length of the material list if the removed material is at the end
-			if (mat.arcaneNS()._id[_id] == _materialsSceneList.length - 1) {
+			if (mat.arcaneNS()._id[_id] == cast _materialsSceneList.length - 1) {
 				_materialsSceneList.length--;
 				_materialsNextList.length--;
 			}

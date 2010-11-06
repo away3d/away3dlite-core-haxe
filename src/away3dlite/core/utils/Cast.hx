@@ -8,7 +8,11 @@ import away3dlite.materials.Material;
 import flash.display.Bitmap;
 import flash.display.BitmapData;
 import flash.display.DisplayObject;
+#if haxe_206
+import flash.errors.Error;
+#else
 import flash.Error;
+#end
 import flash.geom.Matrix;
 import flash.Lib;
 import flash.utils.ByteArray;

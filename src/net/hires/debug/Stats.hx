@@ -60,7 +60,7 @@ class Stats extends Sprite
 		private var _timer : UInt;
 		private var _fps : UInt;
 		private var _ms : UInt;
-		private var _ms_prev : UInt;
+		private var _ms_prev : Int;
 		private var _mem : Float;
 		private var _mem_max : Float;
 	   

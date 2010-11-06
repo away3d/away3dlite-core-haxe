@@ -138,7 +138,8 @@ class Mesh extends Object3D
 		
 		_materialsCacheList[mat.arcaneNS()._id[sid]] = null;
 		
-		if (_materialsCacheList.length == (i + 1))
+		var i_1:UInt = i + 1;
+		if (_materialsCacheList.length == (i_1))
 			_materialsCacheList.length--;
 	}
 	

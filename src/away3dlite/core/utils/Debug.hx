@@ -1,7 +1,11 @@
 package away3dlite.core.utils;
 import away3dlite.haxeutils.FastReflect;
 import away3dlite.haxeutils.FastStd;
+#if haxe_206
+import flash.errors.Error;
+#else
 import flash.Error;
+#end
 import flash.Lib;
 import haxe.Log;
 import haxe.PosInfos;

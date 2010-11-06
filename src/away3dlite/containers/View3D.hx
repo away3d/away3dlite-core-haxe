@@ -11,7 +11,11 @@ import away3dlite.events.ClippingEvent;
 import away3dlite.events.MouseEvent3D;
 import away3dlite.materials.Material;
 import flash.display.Sprite;
+#if haxe_206
+import flash.errors.Error;
+#else
 import flash.Error;
+#end
 import flash.events.ContextMenuEvent;
 import flash.events.Event;
 import flash.events.MouseEvent;
