@@ -48,7 +48,7 @@ class Dot3BitmapMaterial extends BitmapMaterial
 	{
 		_lightMap.fillRect(_lightMap.rect, 0);
 		
-		for (i in 0...source.scene.sceneLights.length) {
+		for (i in 0...cast source.scene.sceneLights.length) {
 			var _light = source.scene.sceneLights[i];
 			if ((_directionalLight = Lib.as(_light, DirectionalLight3D)) != null) {
 				var _red:Float = _directionalLight.arcaneNS()._red*_directionalLight.diffuse;

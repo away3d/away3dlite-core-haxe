@@ -606,7 +606,7 @@ class AwayStats extends Sprite
 			
 			// Sum up poly counts across all registered views
 			i = -1;
-			while (++i < _views.length)
+			while (++i < cast _views.length)
 			{
 				_tfaces += _views[i].totalFaces;
 				_rfaces += _views[i].renderedFaces;

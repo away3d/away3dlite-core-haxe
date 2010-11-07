@@ -30,11 +30,11 @@ class ObjectContainer3D extends Mesh
 			return;
 		
 		if (_scene != null)
-			for (i in 0..._lights.length)
+			for (i in 0...cast _lights.length)
 				_scene.arcane_ns().removeSceneLight(_lights[i]);
 		
 		if (val != null)
-			for (i in 0..._lights.length)
+			for (i in 0...cast _lights.length)
 				val.arcane_ns().addSceneLight(_lights[i]);
 				
 		super.updateScene(val);
@@ -54,7 +54,7 @@ class ObjectContainer3D extends Mesh
 			_cameraForwardVector = new Vector3D(_cameraSceneMatrix3D.rawData[8], _cameraSceneMatrix3D.rawData[9], _cameraSceneMatrix3D.rawData[10]);
 		}
 		
-		for (i in 0..._lights.length)
+		for (i in 0... cast _lights.length)
 			_lights[i].arcaneNS()._camera = camera;
 		
 		super.project(camera, parentSceneMatrix3D);
@@ -284,7 +284,7 @@ class ObjectContainer3D extends Mesh
 		_sprites.splice(_index, 1);
 		
 		// shift indices down one - get vertices chokes on this
-		for (i in 0..._sprites.length)
+		for (i in 0...cast _sprites.length)
 			_sprites[i].arcaneNS().index = i;
 
 		// remove screen vertices if needed - clipping chokes on them

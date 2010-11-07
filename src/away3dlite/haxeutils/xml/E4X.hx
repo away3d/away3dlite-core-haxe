@@ -129,7 +129,7 @@ class E4XML
 	 */
 	public static inline function _(node:XMLList, field:String):XMLList
 	{
-		return untyped cast node[field];
+		return cast untyped node[field];
 	}
 	
 	/**

@@ -149,8 +149,8 @@ class MQO extends AbstractParser
 
 	private function getObjectChunkLine(lines:Array<String>, ?startLine:Int = 0):Int
 	{
-		var i:UInt = startLine;
-		var len = lines.length;
+		var i:Int = startLine;
+		var len:Int = lines.length;
 		while (i < len)
 		{
 			if (lines[i].indexOf("Object") == 0)
@@ -372,8 +372,8 @@ class MQO extends AbstractParser
 
 	private static function getChunkLine(lines:Array<String>, chunkName:String, ?startLine:Int = 0):Int
 	{
-		var i:UInt = startLine;
-		var len = lines.length;
+		var i:Int = startLine;
+		var len:Int = lines.length;
 		while (i < len)
 		{
 			if (lines[i].indexOf(chunkName) != -1)
